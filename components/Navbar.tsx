@@ -43,7 +43,7 @@ export default function Navbar() {
             <Logo size={38} />
             <div className="leading-tight">
               <span className="text-[1.2rem] font-extrabold text-gray-900 tracking-tight">
-                Rachra<span className="text-blue-600">.ma</span>
+                Rachra<span className="text-blue-600">.Com</span>
               </span>
               <p className="text-[0.6rem] text-blue-500 font-semibold tracking-wide uppercase -mt-0.5">
                 Your place, your way
