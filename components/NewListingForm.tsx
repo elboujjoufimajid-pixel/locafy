@@ -8,7 +8,7 @@ import { saveListing } from "@/lib/adminStore";
 import { getCurrentUser } from "@/lib/userAuth";
 import type { Listing } from "@/lib/data";
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 const typeOptions = [
   { value: "apartment", label: "Appartement", icon: "🏢" },
@@ -22,6 +22,7 @@ export default function NewListingForm() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     type: "",
     title: "",
@@ -39,6 +40,9 @@ export default function NewListingForm() {
     seats: "",
     transmission: "Manuelle",
     amenities: [] as string[],
+    contactName: "",
+    contactPhone: "",
+    contactEmail: "",
   });
 
   function set(key: string, value: string) {
@@ -60,6 +64,10 @@ export default function NewListingForm() {
     await new Promise((r) => setTimeout(r, 1500));
 
     const user = getCurrentUser();
+    const ownerName = user ? `${user.firstName} ${user.lastName}` : form.contactName || "Propriétaire";
+    const ownerPhone = user?.phone || form.contactPhone || "0600000000";
+    const ownerAvatar = ownerName[0]?.toUpperCase() || "P";
+
     const newListing: Listing = {
       id: `listing_${Date.now()}`,
       type: form.type as Listing["type"],
@@ -74,9 +82,9 @@ export default function NewListingForm() {
       rating: 0,
       reviewCount: 0,
       owner: {
-        name: user ? `${user.firstName} ${user.lastName}` : "Propriétaire",
-        phone: user?.phone || "0600000000",
-        avatar: user ? `${user.firstName[0]}${user.lastName[0] || ""}` : "P",
+        name: ownerName,
+        phone: ownerPhone,
+        avatar: ownerAvatar,
       },
       bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
@@ -90,20 +98,46 @@ export default function NewListingForm() {
     };
 
     saveListing(newListing);
-    router.push("/dashboard");
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      setSubmitted(true);
+    }
   }
 
   const inputClass =
     "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-200 transition";
 
+  const user = getCurrentUser();
+
   const steps = [
     { n: 1, label: "Type & Infos" },
     { n: 2, label: "Détails" },
     { n: 3, label: "Photos & Prix" },
+    ...(user ? [] : [{ n: 4, label: "Contact" }]),
   ];
 
   return (
     <div>
+      {/* Success screen */}
+      {submitted && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+          <div className="text-5xl mb-4">🎉</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Annonce publiée !</h2>
+          <p className="text-gray-500 text-sm mb-6">Votre annonce sera vérifiée et publiée sous 24h.</p>
+          <div className="flex gap-3 justify-center">
+            <a href="/listings" className="bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-800 transition-colors">
+              Voir les annonces
+            </a>
+            <a href="/auth/register" className="border border-gray-200 text-gray-700 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors">
+              Créer un compte
+            </a>
+          </div>
+        </div>
+      )}
+
+      {!submitted && (
+      <>
       {/* Progress */}
       <div className="flex items-center gap-2 mb-8">
         {steps.map((s, i) => (
@@ -342,24 +376,89 @@ export default function NewListingForm() {
               <button type="button" onClick={() => setStep(2)} className="flex-1 border border-gray-200 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
                 ← Retour
               </button>
+              {user ? (
+                <button
+                  type="submit"
+                  disabled={loading || !form.pricePerDay}
+                  className="flex-1 bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+                >
+                  {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Publication...</> : "Publier l'annonce"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!form.pricePerDay}
+                  onClick={() => setStep(4)}
+                  className="flex-1 bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50"
+                >
+                  Suivant →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4 — Contact (visiteurs non connectés) */}
+        {step === 4 && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+            <h2 className="font-semibold text-gray-900">Vos coordonnées</h2>
+            <p className="text-sm text-gray-500">Pour que les clients puissent vous contacter.</p>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">Nom complet *</label>
+              <input
+                value={form.contactName}
+                onChange={(e) => set("contactName", e.target.value)}
+                placeholder="Mohamed Benali"
+                required
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">Téléphone *</label>
+              <input
+                type="tel"
+                value={form.contactPhone}
+                onChange={(e) => set("contactPhone", e.target.value)}
+                placeholder="06 XX XX XX XX"
+                required
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                type="email"
+                value={form.contactEmail}
+                onChange={(e) => set("contactEmail", e.target.value)}
+                placeholder="vous@email.com"
+                className={inputClass}
+              />
+            </div>
+
+            <div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-800">
+              ✅ Votre annonce sera vérifiée et publiée sous 24h
+            </div>
+
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setStep(3)} className="flex-1 border border-gray-200 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                ← Retour
+              </button>
               <button
                 type="submit"
-                disabled={loading || !form.pricePerDay}
+                disabled={loading || !form.contactName || !form.contactPhone}
                 className="flex-1 bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Publication...
-                  </>
-                ) : (
-                  "Publier l'annonce"
-                )}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Publication...</> : "Publier l'annonce"}
               </button>
             </div>
           </div>
         )}
       </form>
+      </>
+      )}
     </div>
   );
 }
