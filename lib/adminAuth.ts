@@ -1,6 +1,6 @@
-export const ADMIN_EMAIL = "admin@locafy.ma";
+export const ADMIN_EMAIL = "admin@rachra.com";
 export const ADMIN_PASSWORD = "admin2026";
-const KEY = "locafy_admin_auth";
+const KEY = "Rachra_admin_auth";
 
 export function adminLogin(email: string, password: string): boolean {
   if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {

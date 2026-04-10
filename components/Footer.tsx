@@ -18,7 +18,7 @@ export default function Footer() {
               <Logo size={36} />
               <div>
                 <span className="text-xl font-bold text-white tracking-tight">
-                  locafy<span className="text-blue-400 font-semibold">.ma</span>
+                  Rachra<span className="text-blue-400 font-semibold">.ma</span>
                 </span>
                 <p className="text-xs text-blue-300 font-medium -mt-0.5">Your place, your way</p>
               </div>
@@ -64,7 +64,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>contact@locafy.ma</span>
+                <span>contact@rachra.com</span>
               </li>
             </ul>
           </div>

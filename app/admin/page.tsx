@@ -48,7 +48,7 @@ export default function AdminDashboard() {
         <div className="px-6 py-8 max-w-5xl">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-            <p className="text-gray-500 text-sm mt-1">Bienvenue dans le panneau d&apos;administration locafy.ma</p>
+            <p className="text-gray-500 text-sm mt-1">Bienvenue dans le panneau d&apos;administration Rachra.com</p>
           </div>
 
           {/* Stats */}

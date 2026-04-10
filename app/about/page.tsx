@@ -3,8 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "À propos — locafy.ma",
-  description: "Découvrez l'histoire et la mission de locafy.ma, la plateforme de location N°1 au Maroc.",
+  title: "À propos — Rachra.com",
+  description: "Découvrez l'histoire et la mission de Rachra.com, la plateforme de location N°1 au Maroc.",
 };
 
 const team = [
@@ -23,7 +23,7 @@ const stats = [
 
 const values = [
   { emoji: "🤝", title: "Confiance", desc: "Chaque annonce est vérifiée. Chaque hôte est évalué. Vous réservez en toute sécurité." },
-  { emoji: "🌍", title: "National", desc: "De Tanger à Dakhla, de Casablanca à Oujda — locafy.ma couvre tout le Maroc." },
+  { emoji: "🌍", title: "National", desc: "De Tanger à Dakhla, de Casablanca à Oujda — Rachra.com couvre tout le Maroc." },
   { emoji: "⚡", title: "Simplicité", desc: "Trouver, réserver et payer en quelques clics. Simple, rapide, sans friction." },
   { emoji: "💚", title: "Local", desc: "Nous soutenons les propriétaires et prestataires locaux marocains." },
 ];
@@ -38,7 +38,7 @@ export default function AboutPage() {
             <Logo size={64} />
           </div>
           <h1 className="text-4xl font-extrabold mb-4">
-            À propos de locafy<span className="text-blue-300">.ma</span>
+            À propos de Rachra<span className="text-blue-300">.ma</span>
           </h1>
           <p className="text-blue-100 text-lg max-w-2xl mx-auto leading-relaxed">
             Nous construisons la première plateforme de location complète du Maroc — logements, voitures et activités, partout dans le royaume.
@@ -55,10 +55,10 @@ export default function AboutPage() {
               Rendre la location accessible à tous les Marocains
             </h2>
             <p className="text-gray-500 leading-relaxed mb-4">
-              locafy.ma est né d&apos;un constat simple : trouver un logement, une voiture ou une activité au Maroc est encore trop compliqué. Les plateformes étrangères ne connaissent pas nos villes, nos prix, nos besoins.
+              Rachra.com est né d&apos;un constat simple : trouver un logement, une voiture ou une activité au Maroc est encore trop compliqué. Les plateformes étrangères ne connaissent pas nos villes, nos prix, nos besoins.
             </p>
             <p className="text-gray-500 leading-relaxed">
-              Nous avons créé locafy.ma pour changer ça — une plateforme 100% marocaine, en arabe, français et anglais, couvrant les 120+ villes du royaume, des grandes métropoles aux petites communes.
+              Nous avons créé Rachra.com pour changer ça — une plateforme 100% marocaine, en arabe, français et anglais, couvrant les 120+ villes du royaume, des grandes métropoles aux petites communes.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -92,7 +92,7 @@ export default function AboutPage() {
         <div>
           <div className="text-center mb-10">
             <span className="text-blue-600 font-semibold text-sm uppercase tracking-wide">L&apos;équipe</span>
-            <h2 className="text-3xl font-bold text-gray-900 mt-2">Les personnes derrière locafy.ma</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mt-2">Les personnes derrière Rachra.com</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {team.map(({ name, role, emoji }) => (
@@ -107,9 +107,9 @@ export default function AboutPage() {
 
         {/* CTA */}
         <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-10 text-center text-white">
-          <h2 className="text-2xl font-bold mb-3">Rejoignez l&apos;aventure locafy.ma</h2>
+          <h2 className="text-2xl font-bold mb-3">Rejoignez l&apos;aventure Rachra.com</h2>
           <p className="text-blue-200 mb-6 max-w-lg mx-auto">
-            Que vous soyez locataire, propriétaire ou prestataire d&apos;activités — il y a une place pour vous sur locafy.ma.
+            Que vous soyez locataire, propriétaire ou prestataire d&apos;activités — il y a une place pour vous sur Rachra.com.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/listings" className="bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">

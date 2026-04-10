@@ -28,7 +28,7 @@ export default function ContactPage() {
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-3">Contactez-nous</h1>
         <p className="text-gray-500 max-w-lg mx-auto">
-          Une question, un partenariat, ou vous souhaitez publier votre bien sur locafy.ma ?
+          Une question, un partenariat, ou vous souhaitez publier votre bien sur Rachra.com ?
           Notre équipe est là pour vous.
         </p>
       </div>
@@ -41,7 +41,7 @@ export default function ContactPage() {
             {
               icon: Mail,
               label: "Email",
-              value: "contact@locafy.ma",
+              value: "contact@rachra.com",
               sub: "Réponse sous 24h",
               color: "bg-blue-50 text-blue-700",
             },
@@ -81,7 +81,7 @@ export default function ContactPage() {
 
           {/* Why us */}
           <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-5 text-white">
-            <h3 className="font-semibold mb-3">Pourquoi locafy.ma ?</h3>
+            <h3 className="font-semibold mb-3">Pourquoi Rachra.com ?</h3>
             <ul className="space-y-2">
               {[
                 "120+ villes couvertes au Maroc",

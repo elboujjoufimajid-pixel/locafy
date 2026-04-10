@@ -64,7 +64,7 @@ export default function NewListingPage() {
       amenities: form.amenities ? form.amenities.split(",").map((s) => s.trim()).filter(Boolean) : [],
       rating: Number(form.rating),
       reviewCount: Number(form.reviewCount),
-      owner: { name: "Admin locafy", phone: "0600000000", avatar: "AL" },
+      owner: { name: "Admin Rachra", phone: "0600000000", avatar: "AL" },
       available: form.available,
       bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
       bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,

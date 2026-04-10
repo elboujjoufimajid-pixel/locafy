@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact — locafy.ma",
-  description: "Contactez l'équipe locafy.ma pour toute question, partenariat ou publication d'annonce. Réponse sous 24h.",
+  title: "Contact — Rachra.com",
+  description: "Contactez l'équipe Rachra.com pour toute question, partenariat ou publication d'annonce. Réponse sous 24h.",
 };
 
 export default function ContactLayout({ children }: { children: React.ReactNode }) {

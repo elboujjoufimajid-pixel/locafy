@@ -6,19 +6,19 @@ import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: {
-    default: "locafy.ma — Location & Réservation Partout au Maroc",
-    template: "%s — locafy.ma",
+    default: "Rachra.com — Location & Réservation Partout au Maroc",
+    template: "%s — Rachra.com",
   },
   description:
     "Trouvez les meilleures locations d'appartements, maisons, voitures et activités partout au Maroc. Casablanca, Marrakech, Agadir, Tanger, Oujda et plus.",
-  keywords: ["location Maroc", "appartement Maroc", "voiture location Maroc", "riad Marrakech", "locafy"],
-  authors: [{ name: "locafy.ma" }],
+  keywords: ["location Maroc", "appartement Maroc", "voiture location Maroc", "riad Marrakech", "Rachra"],
+  authors: [{ name: "Rachra.com" }],
   openGraph: {
-    title: "locafy.ma — Location & Réservation Partout au Maroc",
+    title: "Rachra.com — Location & Réservation Partout au Maroc",
     description: "La plateforme de location N°1 au Maroc. Appartements, maisons, voitures et activités dans 120+ villes.",
     type: "website",
     locale: "fr_MA",
-    siteName: "locafy.ma",
+    siteName: "Rachra.com",
   },
   icons: {
     icon: "/favicon.svg",

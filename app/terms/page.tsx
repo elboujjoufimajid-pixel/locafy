@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Conditions d'utilisation — locafy.ma",
+  title: "Conditions d'utilisation — Rachra.com",
 };
 
 const sections = [
   {
     title: "1. Acceptation des conditions",
-    content: `En accédant à locafy.ma et en utilisant nos services, vous acceptez d'être lié par les présentes Conditions Générales d'Utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre plateforme.`,
+    content: `En accédant à Rachra.com et en utilisant nos services, vous acceptez d'être lié par les présentes Conditions Générales d'Utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre plateforme.`,
   },
   {
     title: "2. Description du service",
-    content: `locafy.ma est une plateforme en ligne permettant la mise en relation entre propriétaires/prestataires et locataires/clients pour la location de logements, véhicules et la réservation d'activités au Maroc. locafy.ma agit en qualité d'intermédiaire et n'est pas partie au contrat de location.`,
+    content: `Rachra.com est une plateforme en ligne permettant la mise en relation entre propriétaires/prestataires et locataires/clients pour la location de logements, véhicules et la réservation d'activités au Maroc. Rachra.com agit en qualité d'intermédiaire et n'est pas partie au contrat de location.`,
   },
   {
     title: "3. Inscription et compte utilisateur",
@@ -19,23 +19,23 @@ const sections = [
   },
   {
     title: "4. Règles de publication",
-    content: `Les annonces publiées sur locafy.ma doivent être exactes et conformes à la réalité. Toute annonce trompeuse, frauduleuse ou contraire aux lois marocaines sera supprimée. locafy.ma se réserve le droit de modérer ou supprimer toute annonce sans préavis.`,
+    content: `Les annonces publiées sur Rachra.com doivent être exactes et conformes à la réalité. Toute annonce trompeuse, frauduleuse ou contraire aux lois marocaines sera supprimée. Rachra.com se réserve le droit de modérer ou supprimer toute annonce sans préavis.`,
   },
   {
     title: "5. Paiements et commissions",
-    content: `locafy.ma prélève une commission de 5% sur chaque transaction réalisée via la plateforme. Les paiements sont sécurisés par notre partenaire de paiement. En cas d'annulation, les politiques de remboursement de chaque annonce s'appliquent.`,
+    content: `Rachra.com prélève une commission de 5% sur chaque transaction réalisée via la plateforme. Les paiements sont sécurisés par notre partenaire de paiement. En cas d'annulation, les politiques de remboursement de chaque annonce s'appliquent.`,
   },
   {
     title: "6. Responsabilité",
-    content: `locafy.ma ne peut être tenu responsable des dommages résultant de l'utilisation de la plateforme, des interactions entre utilisateurs, ou de l'inexactitude des informations publiées par les prestataires. Chaque propriétaire/prestataire est responsable de la conformité de son offre avec la législation marocaine.`,
+    content: `Rachra.com ne peut être tenu responsable des dommages résultant de l'utilisation de la plateforme, des interactions entre utilisateurs, ou de l'inexactitude des informations publiées par les prestataires. Chaque propriétaire/prestataire est responsable de la conformité de son offre avec la législation marocaine.`,
   },
   {
     title: "7. Propriété intellectuelle",
-    content: `Le contenu de locafy.ma (logo, design, textes, code) est protégé par le droit d'auteur marocain et international. Toute reproduction sans autorisation est interdite. Les utilisateurs conservent les droits sur les photos qu'ils publient mais accordent à locafy.ma une licence d'utilisation.`,
+    content: `Le contenu de Rachra.com (logo, design, textes, code) est protégé par le droit d'auteur marocain et international. Toute reproduction sans autorisation est interdite. Les utilisateurs conservent les droits sur les photos qu'ils publient mais accordent à Rachra.com une licence d'utilisation.`,
   },
   {
     title: "8. Modification des conditions",
-    content: `locafy.ma se réserve le droit de modifier ces conditions à tout moment. Les modifications entrent en vigueur dès leur publication sur la plateforme. La poursuite de l'utilisation du service après modification vaut acceptation des nouvelles conditions.`,
+    content: `Rachra.com se réserve le droit de modifier ces conditions à tout moment. Les modifications entrent en vigueur dès leur publication sur la plateforme. La poursuite de l'utilisation du service après modification vaut acceptation des nouvelles conditions.`,
   },
   {
     title: "9. Droit applicable",
@@ -62,7 +62,7 @@ export default function TermsPage() {
 
       <div className="mt-12 p-5 bg-blue-50 rounded-2xl text-sm text-blue-800">
         Pour toute question concernant ces conditions, contactez-nous à{" "}
-        <a href="mailto:legal@locafy.ma" className="font-semibold underline">legal@locafy.ma</a>
+        <a href="mailto:legal@rachra.com" className="font-semibold underline">legal@rachra.com</a>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-flex items-center gap-2.5">
             <Logo size={40} />
             <span className="text-2xl font-extrabold text-gray-900 tracking-tight">
-              locafy<span className="text-blue-600">.ma</span>
+              Rachra<span className="text-blue-600">.ma</span>
             </span>
           </Link>
           <h1 className="text-xl font-semibold text-gray-900 mt-6 mb-1">{a.welcome}</h1>

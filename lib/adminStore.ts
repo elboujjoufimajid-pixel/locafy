@@ -57,8 +57,8 @@ export function filterActivities(params: {
   });
 }
 
-const LISTINGS_KEY = "locafy_listings";
-const ACTIVITIES_KEY = "locafy_activities";
+const LISTINGS_KEY = "Rachra_listings";
+const ACTIVITIES_KEY = "Rachra_activities";
 
 // ─── Listings ────────────────────────────────────────────────
 export function getListings(): Listing[] {
@@ -113,7 +113,7 @@ export interface Reservation {
   status: ReservationStatus;
 }
 
-const RES_KEY = "locafy_reservations";
+const RES_KEY = "Rachra_reservations";
 
 const defaultReservations: Reservation[] = [
   { id: "R001", listingTitle: "Appartement Moderne Centre Oujda", type: "listing", guest: "Youssef Amrani", phone: "0661234000", startDate: "2026-04-15", endDate: "2026-04-20", total: 1750, status: "confirmed" },

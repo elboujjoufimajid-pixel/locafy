@@ -34,7 +34,7 @@ export default function AdminSidebar() {
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-gray-800">
         <Logo size={34} />
         <div>
-          <span className="text-white font-bold text-base tracking-tight">locafy<span className="text-blue-400">.ma</span></span>
+          <span className="text-white font-bold text-base tracking-tight">Rachra<span className="text-blue-400">.ma</span></span>
           <p className="text-xs text-gray-400 -mt-0.5">Admin Panel</p>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function AdminSidebar() {
           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">A</div>
           <div>
             <p className="text-white text-xs font-semibold">Admin</p>
-            <p className="text-gray-400 text-xs">admin@locafy.ma</p>
+            <p className="text-gray-400 text-xs">admin@rachra.com</p>
           </div>
         </div>
         <button
@@ -93,7 +93,7 @@ export default function AdminSidebar() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900 flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <Logo size={28} />
-          <span className="text-white font-bold text-sm">locafy<span className="text-blue-400">.ma</span> Admin</span>
+          <span className="text-white font-bold text-sm">Rachra<span className="text-blue-400">.ma</span> Admin</span>
         </div>
         <button onClick={() => setOpen(!open)} className="text-gray-400 hover:text-white">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

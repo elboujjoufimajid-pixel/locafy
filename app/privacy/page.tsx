@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité — locafy.ma",
+  title: "Politique de confidentialité — Rachra.com",
 };
 
 const sections = [
@@ -19,7 +19,7 @@ const sections = [
   },
   {
     title: "4. Cookies",
-    content: `locafy.ma utilise des cookies nécessaires au fonctionnement du site, des cookies analytiques anonymes (mesure d'audience), et des cookies de préférences (langue, devise). Vous pouvez désactiver les cookies non essentiels dans les paramètres de votre navigateur.`,
+    content: `Rachra.com utilise des cookies nécessaires au fonctionnement du site, des cookies analytiques anonymes (mesure d'audience), et des cookies de préférences (langue, devise). Vous pouvez désactiver les cookies non essentiels dans les paramètres de votre navigateur.`,
   },
   {
     title: "5. Sécurité des données",
@@ -35,7 +35,7 @@ const sections = [
   },
   {
     title: "8. Contact DPO",
-    content: `Pour exercer vos droits ou pour toute question relative à la protection de vos données, contactez notre Délégué à la Protection des Données : privacy@locafy.ma`,
+    content: `Pour exercer vos droits ou pour toute question relative à la protection de vos données, contactez notre Délégué à la Protection des Données : privacy@rachra.com`,
   },
 ];
 
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
 
       <div className="mt-12 p-5 bg-blue-50 rounded-2xl text-sm text-blue-800">
         Pour exercer vos droits :{" "}
-        <a href="mailto:privacy@locafy.ma" className="font-semibold underline">privacy@locafy.ma</a>
+        <a href="mailto:privacy@rachra.com" className="font-semibold underline">privacy@rachra.com</a>
       </div>
     </div>
   );

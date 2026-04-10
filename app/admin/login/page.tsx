@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
         <div className="flex flex-col items-center mb-8">
           <Logo size={56} />
           <div className="mt-3 text-center">
-            <h1 className="text-2xl font-bold text-white">locafy<span className="text-blue-400">.ma</span></h1>
+            <h1 className="text-2xl font-bold text-white">Rachra<span className="text-blue-400">.ma</span></h1>
             <p className="text-gray-400 text-sm mt-1">Panneau d&apos;administration</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@locafy.ma"
+                placeholder="admin@rachra.com"
                 required
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-white text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-gray-500 transition"
               />
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          Accès réservé aux administrateurs de locafy.ma
+          Accès réservé aux administrateurs de Rachra.com
         </p>
       </div>
     </div>

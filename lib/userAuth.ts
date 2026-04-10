@@ -9,7 +9,7 @@ export interface UserProfile {
   joinedAt: string;
 }
 
-const USER_KEY = "locafy_user";
+const USER_KEY = "Rachra_user";
 
 export function userLogin(email: string, name?: string, phone?: string, role?: "client" | "owner"): void {
   if (typeof window === "undefined") return;
