@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dossier de Présentation — locafy.ma</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; background: #fff; }
+
+    /* Print styles */
+    @media print {
+      .no-print { display: none; }
+      .page-break { page-break-before: always; }
+      body { font-size: 12px; }
+    }
+
+    /* Cover page */
+    .cover {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 400px; height: 400px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .logo-icon {
+      width: 100px; height: 100px;
+      background: white;
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .cover h1 { font-size: 52px; font-weight: 900; color: white; letter-spacing: -2px; margin-bottom: 8px; }
+    .cover h1 span { color: #93c5fd; }
+    .cover .tagline { font-size: 18px; color: #bfdbfe; font-weight: 500; margin-bottom: 40px; }
+    .cover .badge {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 10px 28px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 60px;
+    }
+    .cover-meta { color: rgba(255,255,255,0.5); font-size: 13px; }
+
+    /* Sections */
+    .section { padding: 60px 80px; max-width: 900px; margin: 0 auto; }
+    .section-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 36px; padding-bottom: 16px;
+      border-bottom: 3px solid #2563eb;
+    }
+    .section-num {
+      width: 44px; height: 44px;
+      background: #2563eb; color: white;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .section-title { font-size: 26px; font-weight: 800; color: #1e293b; }
+    .section-sub { font-size: 14px; color: #64748b; margin-top: 2px; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
+    .card {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 16px; padding: 24px;
+    }
+    .card .emoji { font-size: 32px; margin-bottom: 12px; }
+    .card h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: #64748b; line-height: 1.6; }
+    .card.highlight { background: #eff6ff; border-color: #bfdbfe; }
+    .card.highlight h3 { color: #1d4ed8; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0; }
+    .stat { text-align: center; padding: 20px; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; }
+    .stat .value { font-size: 32px; font-weight: 900; color: #2563eb; }
+    .stat .label { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 500; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th { background: #1e3a8a; color: white; padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+    th:first-child { border-radius: 10px 0 0 0; }
+    th:last-child { border-radius: 0 10px 0 0; }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .badge-tag {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .blue { background: #dbeafe; color: #1d4ed8; }
+    .green { background: #dcfce7; color: #16a34a; }
+    .orange { background: #ffedd5; color: #ea580c; }
+    .purple { background: #f3e8ff; color: #7c3aed; }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
+    .timeline-item { position: relative; margin-bottom: 28px; }
+    .timeline-dot {
+      position: absolute; left: -28px; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #2563eb; border: 3px solid #dbeafe;
+    }
+    .timeline-item h4 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+    .timeline-item p { font-size: 13px; color: #64748b; line-height: 1.6; }
+    .timeline-phase { font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+    /* Revenue model */
+    .revenue-box {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white; border-radius: 20px; padding: 32px;
+      margin: 24px 0;
+    }
+    .revenue-box h3 { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+    .revenue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+    .revenue-item { background: rgba(255,255,255,0.12); border-radius: 12px; padding: 16px; text-align: center; }
+    .revenue-item .pct { font-size: 28px; font-weight: 900; }
+    .revenue-item .desc { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+    /* Contact */
+    .contact-box {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 20px; padding: 36px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .contact-item { display: flex; align-items: flex-start; gap: 12px; }
+    .contact-icon { width: 40px; height: 40px; background: #dbeafe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .contact-item h4 { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .contact-item p { font-size: 14px; color: #1e293b; font-weight: 600; margin-top: 2px; }
+
+    /* Footer */
+    .doc-footer {
+      background: #1e293b; color: rgba(255,255,255,0.6);
+      padding: 32px 80px; text-align: center; font-size: 12px;
+      margin-top: 60px;
+    }
+    .doc-footer strong { color: white; }
+
+    /* Print button */
+    .print-btn {
+      position: fixed; bottom: 30px; right: 30px;
+      background: #2563eb; color: white;
+      border: none; padding: 14px 28px;
+      border-radius: 50px; font-size: 15px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 8px 30px rgba(37,99,235,0.4);
+      z-index: 999;
+    }
+    .print-btn:hover { background: #1d4ed8; }
+
+    hr.section-divider { border: none; border-top: 1px solid #e2e8f0; margin: 60px 0; }
+  </style>
+</head>
+<body>
+
+<!-- Print button -->
+<button class="print-btn no-print" onclick="window.print()">🖨 Imprimer / PDF</button>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="cover">
+  <div class="logo-icon">
+    <svg width="60" height="60" viewBox="0 0 40 40" fill="none">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stop-color="#4B9EFF"/>
+          <stop offset="100%" stop-color="#1A3FC5"/>
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="9" fill="url(#bg)"/>
+      <path d="M20 4C13.4 4 8 9.4 8 16C8 22.6 20 38 20 38C20 38 32 22.6 32 16C32 9.4 26.6 4 20 4Z" fill="white"/>
+      <path d="M12.5 17.5L20 10L27.5 17.5Z" fill="#2563EB"/>
+      <rect x="13.5" y="17.5" width="13" height="8" fill="#2563EB"/>
+      <rect x="14.5" y="18.8" width="1.9" height="1.5" rx="0.2" fill="white"/>
+      <rect x="17" y="18.8" width="1.9" height="1.5" rx="0.2" fill="white"/>
+      <rect x="21.1" y="18.8" width="1.9" height="1.5" rx="0.2" fill="white"/>
+      <rect x="23.6" y="18.8" width="1.9" height="1.5" rx="0.2" fill="white"/>
+      <rect x="18.5" y="22" width="3" height="3.5" rx="0.6" fill="white"/>
+    </svg>
+  </div>
+  <h1>locafy<span>.ma</span></h1>
+  <p class="tagline">Your place, your way</p>
+  <div class="badge">Dossier de Présentation — 2026</div>
+  <p class="cover-meta">Plateforme nationale de location & achat immobilier et d'activités au Maroc</p>
+</div>
+
+<!-- ═══════════════ SECTION 1 — PRÉSENTATION ═══════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <div class="section-title">Présentation du Projet</div>
+      <div class="section-sub">Qui sommes-nous et quelle est notre mission ?</div>
+    </div>
+  </div>
+
+  <p style="font-size:15px; line-height:1.8; color:#475569; margin-bottom:32px;">
+    <strong style="color:#1e293b">locafy.ma</strong> est la première plateforme digitale marocaine dédiée à la <strong>location et l'achat d'appartements, maisons, voitures et activités</strong> partout au Maroc. Notre objectif est de connecter propriétaires et locataires de manière simple, sécurisée et efficace — en ligne, depuis n'importe quel appareil.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="value">120+</div><div class="label">Villes couvertes</div></div>
+    <div class="stat"><div class="value">3</div><div class="label">Types d'annonces</div></div>
+    <div class="stat"><div class="value">9</div><div class="label">Activités & Expériences</div></div>
+    <div class="stat"><div class="value">3</div><div class="label">Langues (FR / EN / AR)</div></div>
+  </div>
+
+  <div class="cards">
+    <div class="card highlight">
+      <div class="emoji">🏠</div>
+      <h3>Immobilier</h3>
+      <p>Appartements et maisons à louer ou acheter partout au Maroc, de courte à longue durée.</p>
+    </div>
+    <div class="card highlight">
+      <div class="emoji">🚗</div>
+      <h3>Location de voitures</h3>
+      <p>Véhicules disponibles à la journée avec assurance, GPS et kilométrage illimité.</p>
+    </div>
+    <div class="card highlight">
+      <div class="emoji">🎯</div>
+      <h3>Activités & Expériences</h3>
+      <p>Quad, restaurants, excursions, plages — réservez en ligne ou via WhatsApp.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ SECTION 2 — FONCTIONNALITÉS ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <div class="section-title">Fonctionnalités Principales</div>
+      <div class="section-sub">Ce que la plateforme offre aux utilisateurs</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Fonctionnalité</th><th>Description</th><th>Statut</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Recherche & Filtres avancés</td><td>Par ville, type, prix, note — parmi 120+ villes marocaines</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Fiches annonces détaillées</td><td>Photos, équipements, localisation, avis, prix journalier/mensuel</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Réservation en ligne</td><td>Formulaire de réservation avec calcul automatique (dates + frais 5%)</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Contact WhatsApp</td><td>Bouton direct WhatsApp avec message pré-rempli vers le propriétaire</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Activités & Restaurants</td><td>Réservation de table (heure, occasion), activités plein air, excursions</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Paiement sécurisé CMI</td><td>Carte bancaire marocaine (Visa, Mastercard, CIH, Attijariwafa)</td><td><span class="badge-tag orange">En cours</span></td></tr>
+      <tr><td>Panneau Admin complet</td><td>Gestion annonces, activités, réservations — interface dédiée</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Multilingue FR / EN / عربي</td><td>Interface complète en 3 langues avec support RTL pour l'arabe</td><td><span class="badge-tag green">✓ Actif</span></td></tr>
+      <tr><td>Authentification utilisateurs</td><td>Inscription, connexion, Google OAuth</td><td><span class="badge-tag blue">Bientôt</span></td></tr>
+      <tr><td>Application mobile</td><td>PWA ou application React Native</td><td><span class="badge-tag purple">Roadmap</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ SECTION 3 — MODÈLE ÉCONOMIQUE ═══════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <div class="section-title">Modèle Économique</div>
+      <div class="section-sub">Comment locafy.ma génère des revenus</div>
+    </div>
+  </div>
+
+  <div class="revenue-box">
+    <h3>💰 Sources de revenus</h3>
+    <p style="opacity:0.85; font-size:14px; line-height:1.7;">La plateforme applique une commission transparente sur chaque transaction réalisée. Ce modèle est simple, équitable, et aligné avec les intérêts des propriétaires et locataires.</p>
+    <div class="revenue-grid">
+      <div class="revenue-item">
+        <div class="pct">5%</div>
+        <div class="desc">Commission sur chaque réservation (frais de service)</div>
+      </div>
+      <div class="revenue-item">
+        <div class="pct">Pub</div>
+        <div class="desc">Annonces sponsorisées & mise en avant premium</div>
+      </div>
+      <div class="revenue-item">
+        <div class="pct">Abnt</div>
+        <div class="desc">Abonnement mensuel pro pour agences immobilières</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards" style="margin-top:28px;">
+    <div class="card">
+      <div class="emoji">👤</div>
+      <h3>Particuliers</h3>
+      <p>Publient leurs annonces gratuitement. Payent 0% — la commission est prise sur le locataire.</p>
+    </div>
+    <div class="card">
+      <div class="emoji">🏢</div>
+      <h3>Agences</h3>
+      <p>Abonnement mensuel pour publication illimitée + outils de gestion avancés.</p>
+    </div>
+    <div class="card">
+      <div class="emoji">🌟</div>
+      <h3>Premium</h3>
+      <p>Mise en avant en tête de liste, badge "Vérifié", statistiques détaillées.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ SECTION 4 — TECHNIQUE ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div>
+      <div class="section-title">Architecture Technique</div>
+      <div class="section-sub">Technologies utilisées pour construire locafy.ma</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Composant</th><th>Technologie</th><th>Rôle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Frontend</td><td><span class="badge-tag blue">Next.js 16</span></td><td>Interface utilisateur, rendu hybride (SSR + CSR)</td></tr>
+      <tr><td>UI / Design</td><td><span class="badge-tag blue">Tailwind CSS</span></td><td>Styles responsive, design system cohérent</td></tr>
+      <tr><td>Langage</td><td><span class="badge-tag purple">TypeScript</span></td><td>Code typé, robuste et maintenable</td></tr>
+      <tr><td>Base de données</td><td><span class="badge-tag green">Supabase</span></td><td>PostgreSQL hébergé, auth, stockage (à intégrer)</td></tr>
+      <tr><td>Stockage images</td><td><span class="badge-tag orange">Cloudinary</span></td><td>Upload, optimisation et CDN des images</td></tr>
+      <tr><td>Emails</td><td><span class="badge-tag blue">Resend</span></td><td>Emails transactionnels (confirmations, rappels)</td></tr>
+      <tr><td>Paiement</td><td><span class="badge-tag green">CMI Maroc</span></td><td>Paiement par carte bancaire marocaine</td></tr>
+      <tr><td>Hébergement</td><td><span class="badge-tag purple">Vercel</span></td><td>Déploiement automatique, CDN global</td></tr>
+      <tr><td>Domaine</td><td><span class="badge-tag orange">locafy.ma</span></td><td>Nom de domaine .ma (ANRT Maroc)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ SECTION 5 — ROADMAP ═══════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div>
+      <div class="section-title">Roadmap</div>
+      <div class="section-sub">Plan de développement et déploiement</div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#22c55e;"></div>
+      <div class="timeline-phase">Phase 1 — Terminée ✓</div>
+      <h4>Interface complète & Admin Panel</h4>
+      <p>Design Booking.com-inspired, multilingue (FR/EN/AR), admin avec gestion annonces, activités et réservations, logo et identité visuelle.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#f59e0b;"></div>
+      <div class="timeline-phase">Phase 2 — En cours</div>
+      <h4>Base de données & Authentification réelle</h4>
+      <p>Intégration Supabase, authentification NextAuth (Google + email), données persistantes côté serveur.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 3 — Q3 2026</div>
+      <h4>Paiement CMI & Emails automatiques</h4>
+      <p>Intégration paiement CMI Maroc, confirmation par email (Resend), upload photos via Cloudinary.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 4 — Q4 2026</div>
+      <h4>Déploiement national & Marketing</h4>
+      <p>Lancement sur locafy.ma, campagnes réseaux sociaux, partenariats avec agences et hôtels, application mobile.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══════════════ SECTION 6 — CONTACT ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div>
+      <div class="section-title">Contact & Informations</div>
+      <div class="section-sub">Pour toute demande de partenariat ou d'investissement</div>
+    </div>
+  </div>
+
+  <div class="contact-box">
+    <div class="contact-item">
+      <div class="contact-icon">🌐</div>
+      <div><h4>Site web</h4><p>www.locafy.ma</p></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">📧</div>
+      <div><h4>Email</h4><p>contact@locafy.ma</p></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">📱</div>
+      <div><h4>WhatsApp</h4><p>+212 600 000 000</p></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">📍</div>
+      <div><h4>Siège social</h4><p>Casablanca, Maroc</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="doc-footer">
+  <p><strong>locafy.ma</strong> — Your place, your way</p>
+  <p style="margin-top:8px;">© 2026 locafy.ma · Tous droits réservés · Confidentiel</p>
+</div>
+
+</body>
+</html>

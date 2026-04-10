@@ -1,0 +1,366 @@
+﻿"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Upload } from "lucide-react";
+import { CITIES } from "@/lib/data";
+import { saveListing } from "@/lib/adminStore";
+import { getCurrentUser } from "@/lib/userAuth";
+import type { Listing } from "@/lib/data";
+
+type Step = 1 | 2 | 3;
+
+const typeOptions = [
+  { value: "apartment", label: "Appartement", icon: "🏢" },
+  { value: "house", label: "Maison / Villa", icon: "🏡" },
+  { value: "car", label: "Voiture", icon: "🚗" },
+];
+
+const amenitiesList = ["WiFi", "Climatisation", "Parking", "Piscine", "Ascenseur", "Balcon", "Jardin", "Barbecue", "GPS", "Bluetooth", "Assurance incluse"];
+
+export default function NewListingForm() {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>(1);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    type: "",
+    title: "",
+    city: "",
+    address: "",
+    description: "",
+    pricePerDay: "",
+    pricePerMonth: "",
+    bedrooms: "",
+    bathrooms: "",
+    area: "",
+    brand: "",
+    model: "",
+    year: "",
+    seats: "",
+    transmission: "Manuelle",
+    amenities: [] as string[],
+  });
+
+  function set(key: string, value: string) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function toggleAmenity(a: string) {
+    setForm((f) => ({
+      ...f,
+      amenities: f.amenities.includes(a)
+        ? f.amenities.filter((x) => x !== a)
+        : [...f.amenities, a],
+    }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 1500));
+
+    const user = getCurrentUser();
+    const newListing: Listing = {
+      id: `listing_${Date.now()}`,
+      type: form.type as Listing["type"],
+      title: form.title,
+      description: form.description,
+      city: form.city,
+      address: form.address,
+      pricePerDay: Number(form.pricePerDay),
+      pricePerMonth: form.pricePerMonth ? Number(form.pricePerMonth) : undefined,
+      images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"],
+      amenities: form.amenities,
+      rating: 0,
+      reviewCount: 0,
+      owner: {
+        name: user ? `${user.firstName} ${user.lastName}` : "Propriétaire",
+        phone: user?.phone || "0600000000",
+        avatar: user ? `${user.firstName[0]}${user.lastName[0] || ""}` : "P",
+      },
+      bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
+      bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
+      area: form.area ? Number(form.area) : undefined,
+      brand: form.brand || undefined,
+      model: form.model || undefined,
+      year: form.year ? Number(form.year) : undefined,
+      seats: form.seats ? Number(form.seats) : undefined,
+      transmission: form.transmission || undefined,
+      available: true,
+    };
+
+    saveListing(newListing);
+    router.push("/dashboard");
+  }
+
+  const inputClass =
+    "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-200 transition";
+
+  const steps = [
+    { n: 1, label: "Type & Infos" },
+    { n: 2, label: "Détails" },
+    { n: 3, label: "Photos & Prix" },
+  ];
+
+  return (
+    <div>
+      {/* Progress */}
+      <div className="flex items-center gap-2 mb-8">
+        {steps.map((s, i) => (
+          <div key={s.n} className="flex items-center gap-2 flex-1">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+                step >= s.n ? "bg-blue-700 text-white" : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              {s.n}
+            </div>
+            <span className={`text-xs font-medium ${step >= s.n ? "text-blue-800" : "text-gray-400"}`}>
+              {s.label}
+            </span>
+            {i < steps.length - 1 && (
+              <div className={`flex-1 h-0.5 ${step > s.n ? "bg-blue-600" : "bg-gray-200"}`} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {/* Step 1 */}
+        {step === 1 && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+            <h2 className="font-semibold text-gray-900">Type de bien</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {typeOptions.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => set("type", t.value)}
+                  className={`p-4 rounded-xl border-2 text-center transition-colors ${
+                    form.type === t.value
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-3xl mb-1">{t.icon}</div>
+                  <div className="text-sm font-medium text-gray-700">{t.label}</div>
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                Titre de l&apos;annonce *
+              </label>
+              <input
+                value={form.title}
+                onChange={(e) => set("title", e.target.value)}
+                placeholder="Ex: Appartement moderne centre Oujda"
+                required
+                className={inputClass}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">Ville *</label>
+                <select
+                  value={form.city}
+                  onChange={(e) => set("city", e.target.value)}
+                  required
+                  className={inputClass}
+                >
+                  <option value="">Choisir</option>
+                  {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">Adresse *</label>
+                <input
+                  value={form.address}
+                  onChange={(e) => set("address", e.target.value)}
+                  placeholder="Quartier, rue..."
+                  required
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">Description *</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => set("description", e.target.value)}
+                placeholder="Décrivez votre bien en détail..."
+                required
+                rows={4}
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+
+            <button
+              type="button"
+              disabled={!form.type || !form.title || !form.city || !form.address}
+              onClick={() => setStep(2)}
+              className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50"
+            >
+              Suivant →
+            </button>
+          </div>
+        )}
+
+        {/* Step 2 */}
+        {step === 2 && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+            <h2 className="font-semibold text-gray-900">Détails du bien</h2>
+
+            {form.type !== "car" ? (
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Chambres</label>
+                  <input type="number" min="0" value={form.bedrooms} onChange={(e) => set("bedrooms", e.target.value)} placeholder="2" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Salles de bain</label>
+                  <input type="number" min="0" value={form.bathrooms} onChange={(e) => set("bathrooms", e.target.value)} placeholder="1" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Surface (m²)</label>
+                  <input type="number" min="0" value={form.area} onChange={(e) => set("area", e.target.value)} placeholder="85" className={inputClass} />
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Marque</label>
+                  <input value={form.brand} onChange={(e) => set("brand", e.target.value)} placeholder="Dacia" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Modèle</label>
+                  <input value={form.model} onChange={(e) => set("model", e.target.value)} placeholder="Logan" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Année</label>
+                  <input type="number" value={form.year} onChange={(e) => set("year", e.target.value)} placeholder="2022" className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Boîte</label>
+                  <select value={form.transmission} onChange={(e) => set("transmission", e.target.value)} className={inputClass}>
+                    <option>Manuelle</option>
+                    <option>Automatique</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Amenities */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Équipements</label>
+              <div className="flex flex-wrap gap-2">
+                {amenitiesList.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => toggleAmenity(a)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      form.amenities.includes(a)
+                        ? "bg-blue-700 text-white border-blue-700"
+                        : "border-gray-200 text-gray-600 hover:border-blue-300"
+                    }`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setStep(1)} className="flex-1 border border-gray-200 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                ← Retour
+              </button>
+              <button type="button" onClick={() => setStep(3)} className="flex-1 bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors">
+                Suivant →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 */}
+        {step === 3 && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+            <h2 className="font-semibold text-gray-900">Photos & Prix</h2>
+
+            {/* Upload zone */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Photos</label>
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-blue-300 transition-colors cursor-pointer">
+                <Upload className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">Glissez vos photos ici</p>
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG — max 5MB chacune</p>
+                <button type="button" className="mt-3 text-xs text-blue-700 border border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50">
+                  Choisir des fichiers
+                </button>
+              </div>
+            </div>
+
+            {/* Pricing */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                Prix par jour (MAD) *
+              </label>
+              <input
+                type="number"
+                value={form.pricePerDay}
+                onChange={(e) => set("pricePerDay", e.target.value)}
+                placeholder="350"
+                required
+                min="1"
+                className={inputClass}
+              />
+            </div>
+
+            {form.type !== "car" && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                  Prix par mois (MAD) — optionnel
+                </label>
+                <input
+                  type="number"
+                  value={form.pricePerMonth}
+                  onChange={(e) => set("pricePerMonth", e.target.value)}
+                  placeholder="4500"
+                  className={inputClass}
+                />
+              </div>
+            )}
+
+            <div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-800">
+              ✅ Votre annonce sera vérifiée et publiée sous 24h
+            </div>
+
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setStep(2)} className="flex-1 border border-gray-200 py-3 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                ← Retour
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !form.pricePerDay}
+                className="flex-1 bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Publication...
+                  </>
+                ) : (
+                  "Publier l'annonce"
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </form>
+    </div>
+  );
+}
+
