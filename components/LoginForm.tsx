@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { userLogin } from "@/lib/userAuth";
+import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -89,6 +90,7 @@ export default function LoginForm() {
 
       <button
         type="button"
+        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
         className="w-full border border-gray-200 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">

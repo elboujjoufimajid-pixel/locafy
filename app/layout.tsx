@@ -2,7 +2,7 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { LanguageProvider } from "@/lib/i18n";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: {
@@ -33,11 +33,11 @@ export default function RootLayout({
   return (
     <html lang="fr" className="h-full">
       <body className="min-h-full flex flex-col bg-gray-50">
-        <LanguageProvider>
+        <Providers>
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-        </LanguageProvider>
+        </Providers>
       </body>
     </html>
   );
