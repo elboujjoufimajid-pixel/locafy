@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { userLogin } from "@/lib/userAuth";
-import { signIn } from "next-auth/react";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -160,7 +159,7 @@ export default function RegisterForm() {
 
       <button
         type="button"
-        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+        onClick={() => window.location.href = "/api/auth/google?callbackUrl=/dashboard"}
         className="w-full bg-white border-2 border-gray-300 py-3 rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-all flex items-center justify-center gap-3 shadow-sm"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
