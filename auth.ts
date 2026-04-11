@@ -3,14 +3,15 @@ import Google from "next-auth/providers/google";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  providers: [Google],
   secret: process.env.AUTH_SECRET,
-  callbacks: {
-    async session({ session }) {
-      return session;
-    },
-  },
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID ?? "",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "",
+    }),
+  ],
   pages: {
     signIn: "/auth/login",
+    error: "/auth/login",
   },
 });
