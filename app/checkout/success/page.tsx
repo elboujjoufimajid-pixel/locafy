@@ -15,6 +15,8 @@ function SuccessContent() {
   const reservationId = searchParams.get("reservationId");
   const listingId = searchParams.get("listingId");
   const total = Number(searchParams.get("total") || 0);
+  const commission = Math.round(total * 0.10);
+  const ownerAmount = total - commission;
   const listing = listingId ? getListingById(listingId) : null;
 
   const s = t.success;
@@ -55,9 +57,19 @@ function SuccessContent() {
             </div>
           )}
 
-          <div className="pt-3 flex justify-between items-center">
-            <span className="text-sm text-gray-500">{s.totalPaid}</span>
-            <span className="font-bold text-gray-900">{formatPrice(total)}</span>
+          <div className="pt-3 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">{s.totalPaid}</span>
+              <span className="font-bold text-gray-900">{formatPrice(total)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-gray-400">Commission plateforme (10%)</span>
+              <span className="text-orange-600 font-semibold">{formatPrice(commission)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs border-t border-gray-100 pt-2">
+              <span className="text-gray-400">Montant propriétaire (90%)</span>
+              <span className="text-green-600 font-semibold">{formatPrice(ownerAmount)}</span>
+            </div>
           </div>
         </div>
 
