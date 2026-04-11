@@ -166,7 +166,7 @@ export default function ActivityBookingForm({ activity }: Props) {
 
       {/* WhatsApp reserve button */}
       <a
-        href={canReserve ? `https://wa.me/212${activity.owner.phone.slice(1)}?text=${buildWhatsAppMessage()}` : undefined}
+        href={canReserve ? `https://wa.me/212600287382?text=${buildWhatsAppMessage()}` : undefined}
         target="_blank"
         rel="noopener noreferrer"
         className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-colors ${
@@ -198,7 +198,7 @@ export default function ActivityBookingForm({ activity }: Props) {
       {/* Direct WhatsApp contact */}
       <div className="mt-3">
         <a
-          href={`https://wa.me/212${activity.owner.phone.slice(1)}`}
+          href={`https://wa.me/212600287382`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full border border-gray-200 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium"

@@ -48,7 +48,7 @@ export default function ContactPage() {
             {
               icon: Phone,
               label: "Téléphone",
-              value: "+212 6XX XXX XXX",
+              value: "+212 600 287 382",
               sub: "Lun–Sam, 9h–18h",
               color: "bg-green-50 text-green-700",
             },

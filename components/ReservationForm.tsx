@@ -140,7 +140,7 @@ export default function ReservationForm({ listing }: Props) {
       {/* Contact option */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <a
-          href={`https://wa.me/212${listing.owner.phone.slice(1)}`}
+          href={`https://wa.me/212600287382`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full border border-gray-200 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium"
