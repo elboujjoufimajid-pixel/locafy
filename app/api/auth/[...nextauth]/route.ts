@@ -6,11 +6,18 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      checks: ["state"],
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: true,
+  debug: true,
+  logger: {
+    error(code, metadata) {
+      console.error("NEXTAUTH_ERROR:", code, JSON.stringify(metadata));
+    },
+    warn(code) {
+      console.warn("NEXTAUTH_WARN:", code);
+    },
+  },
   pages: {
     signIn: "/auth/login",
     error: "/auth/login",
