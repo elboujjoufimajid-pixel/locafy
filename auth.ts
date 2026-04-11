@@ -1,17 +1,2 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  trustHost: true,
-  secret: process.env.AUTH_SECRET,
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID ?? "",
-      clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "",
-    }),
-  ],
-  pages: {
-    signIn: "/auth/login",
-    error: "/auth/login",
-  },
-});
+// NextAuth v4 — signIn/signOut exported from next-auth/react on client side
+export { signIn, signOut } from "next-auth/react";
