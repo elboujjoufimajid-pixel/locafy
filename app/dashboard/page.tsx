@@ -8,7 +8,7 @@ import { getUserReservations } from "@/lib/adminStore";
 import type { Reservation } from "@/lib/adminStore";
 import { getCurrentUser, userLogout } from "@/lib/userAuth";
 import type { UserProfile } from "@/lib/userAuth";
-import { PlusCircle, Calendar, MapPin, Star, LogOut, User, Phone, Mail, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { PlusCircle, Calendar, MapPin, Star, LogOut, User, Phone, Mail, CheckCircle2, Clock, XCircle, Heart } from "lucide-react";
 
 const statusConfig = {
   confirmed: { label: "Confirmée", cls: "bg-green-100 text-green-700", icon: CheckCircle2 },
@@ -146,10 +146,7 @@ export default function DashboardPage() {
 
           {/* Quick links */}
           <div className="grid grid-cols-2 gap-4">
-            <Link
-              href="/listings"
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-blue-300 transition-colors group"
-            >
+            <Link href="/listings" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-blue-300 transition-colors group">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                 <PlusCircle className="w-5 h-5 text-blue-700" />
               </div>
@@ -158,16 +155,31 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-400">Appartements & Maisons</p>
               </div>
             </Link>
-            <Link
-              href="/activities"
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-blue-300 transition-colors group"
-            >
+            <Link href="/activities" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-blue-300 transition-colors group">
               <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
                 <Star className="w-5 h-5 text-purple-700" />
               </div>
               <div>
                 <p className="font-medium text-gray-900 text-sm">Découvrir activités</p>
                 <p className="text-xs text-gray-400">Quad, restaurants, excursions</p>
+              </div>
+            </Link>
+            <Link href="/dashboard/favoris" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-red-300 transition-colors group">
+              <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center group-hover:bg-red-100 transition-colors">
+                <Heart className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Mes favoris</p>
+                <p className="text-xs text-gray-400">Annonces sauvegardées</p>
+              </div>
+            </Link>
+            <Link href="/dashboard/new" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-3 hover:border-green-300 transition-colors group">
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
+                <Calendar className="w-5 h-5 text-green-700" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Publier une annonce</p>
+                <p className="text-xs text-gray-400">Gratuit & rapide</p>
               </div>
             </Link>
           </div>

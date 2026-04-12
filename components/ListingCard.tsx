@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Star, BedDouble, Car, Home } from "lucide-react";
+import { MapPin, BedDouble, Car, Home, Heart } from "lucide-react";
 import type { Listing } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import { useState, useEffect } from "react";
+import { toggleFavorite, isFavorite } from "@/lib/favoritesStore";
 
 interface Props {
   listing: Listing;
@@ -32,6 +34,14 @@ export default function ListingCard({ listing, showLastAvail = false, horizontal
   const score = getScoreBadge(listing.rating, t.card.scoreLabels);
   const typeLabels = { apartment: t.nav.apartments, house: t.nav.houses, car: t.nav.cars };
   const discountedPrice = listing.deal ? Math.round(listing.pricePerDay * (1 - listing.deal / 100)) : null;
+  const [fav, setFav] = useState(false);
+  useEffect(() => { setFav(isFavorite(listing.id)); }, [listing.id]);
+
+  function handleFav(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setFav(toggleFavorite(listing.id));
+  }
 
   if (horizontal) {
     return (
@@ -148,15 +158,18 @@ export default function ListingCard({ listing, showLastAvail = false, horizontal
               {typeLabels[listing.type]}
             </span>
           </div>
+          <button onClick={handleFav} className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform z-10">
+            <Heart className={`w-4 h-4 ${fav ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
+          </button>
           {listing.deal && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 left-3">
               <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                 -{listing.deal}%
               </span>
             </div>
           )}
           {showLastAvail && !listing.deal && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 left-3">
               <span className="bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                 {t.card.lastAvail}
               </span>

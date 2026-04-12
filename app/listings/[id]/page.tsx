@@ -6,6 +6,7 @@ import { MapPin, Star, Wifi, Car, BedDouble, Bath, Maximize, Users, CheckCircle2
 import { formatPrice } from "@/lib/utils";
 import ReservationForm from "@/components/ReservationForm";
 import ImageGallery from "@/components/ImageGallery";
+import ReviewsSection from "@/components/ReviewsSection";
 import { useT } from "@/lib/i18n";
 
 export default function ListingDetailPage() {
@@ -178,6 +179,11 @@ export default function ListingDetailPage() {
             <ReservationForm listing={listing} />
           </div>
         </div>
+      </div>
+
+      {/* Reviews */}
+      <div className="max-w-2xl mt-4">
+        <ReviewsSection listingId={listing.id} />
       </div>
     </div>
   );
