@@ -1,28 +1,39 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { getActivities } from "@/lib/adminStore";
+import { Suspense, useState, useEffect } from "react";
+import type { Activity } from "@/lib/data";
+import { getOutings } from "@/lib/groupOutingsStore";
 import { CITIES } from "@/lib/data";
 import ActivityCard from "@/components/ActivityCard";
+import GroupOutingCard from "@/components/GroupOutingCard";
+import CreateOutingModal from "@/components/CreateOutingModal";
 import { useT } from "@/lib/i18n";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Plus, Users } from "lucide-react";
 
 type Category = "all" | "outdoor" | "restaurant" | "excursion";
 
 function ActivitiesContent() {
   const searchParams = useSearchParams();
   const { t } = useT();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [outings, setOutings] = useState(() => getOutings());
+  const [allActivities, setAllActivities] = useState<Activity[]>([]);
   const a = t.activities;
 
   const category = (searchParams.get("category") || "all") as Category;
   const city = searchParams.get("city") || "all";
 
-  const filtered = getActivities().filter((act) => {
-    if (category !== "all" && act.category !== category) return false;
-    if (city !== "all" && act.city !== city) return false;
-    return true;
-  });
+  useEffect(() => {
+    const qs = new URLSearchParams();
+    if (category !== "all") qs.set("category", category);
+    if (city !== "all") qs.set("city", city);
+    fetch(`/api/db/activities?${qs.toString()}`)
+      .then((r) => r.json())
+      .then((data) => setAllActivities(Array.isArray(data) ? data : []));
+  }, [category, city]);
+
+  const filtered = allActivities;
 
   const categories: { key: Category; label: string; emoji: string }[] = [
     { key: "all", label: a.all, emoji: "✨" },
@@ -40,11 +51,52 @@ function ActivitiesContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {showCreateModal && (
+        <CreateOutingModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => setOutings(getOutings())}
+        />
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{a.pageTitle}</h1>
         <p className="text-gray-500">{a.pageSubtitle}</p>
       </div>
+
+      {/* Sorties Groupe section */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Sorties Groupe</h2>
+              <p className="text-sm text-gray-500">Rejoins une sortie ou organise la tienne</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Créer une sortie
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {outings.map((outing) => (
+            <GroupOutingCard
+              key={outing.id}
+              outing={outing}
+              onUpdate={() => setOutings(getOutings())}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 mb-8" />
 
       {/* Category tabs */}
       <div className="flex flex-wrap gap-2 mb-6">

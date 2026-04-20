@@ -1,12 +1,32 @@
-export const ADMIN_EMAIL = "admin@rachra.com";
-export const ADMIN_PASSWORD = "admin2026";
 const KEY = "Rachra_admin_auth";
 
-export function adminLogin(email: string, password: string): boolean {
-  if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+// Hardcoded fallback — works even if Supabase is down
+const FALLBACK_EMAIL = "admin@rachra.com";
+const FALLBACK_PASSWORD = "Utrecht2007@";
+
+export async function adminLogin(email: string, password: string): Promise<boolean> {
+  const trimmedEmail = email.trim();
+
+  // 1. Always check hardcoded credentials first (guaranteed to work)
+  if (trimmedEmail === FALLBACK_EMAIL && password === FALLBACK_PASSWORD) {
     if (typeof window !== "undefined") localStorage.setItem(KEY, "true");
     return true;
   }
+
+  // 2. Also check DB credentials (in case admin changed them via settings page)
+  try {
+    const res = await fetch("/api/db/admin-settings");
+    if (res.ok) {
+      const settings = await res.json();
+      if (trimmedEmail === settings.email && password === settings.password) {
+        if (typeof window !== "undefined") localStorage.setItem(KEY, "true");
+        return true;
+      }
+    }
+  } catch {
+    // Supabase unreachable — fallback already handled above
+  }
+
   return false;
 }
 

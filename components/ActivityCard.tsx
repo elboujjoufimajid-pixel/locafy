@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Clock, Users, Star } from "lucide-react";
+import { MapPin, Clock, Users, Star, BadgeCheck } from "lucide-react";
 import type { Activity } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -69,6 +69,12 @@ export default function ActivityCard({ activity }: Props) {
               <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 mb-1">
                 {activity.title}
               </h3>
+              {activity.verified && (
+                <div className="flex items-center gap-1 text-emerald-600 text-xs font-medium mb-1">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  <span>Propriétaire Vérifié</span>
+                </div>
+              )}
               <div className="flex items-center gap-1 text-gray-500 text-xs mb-2">
                 <MapPin className="w-3 h-3 shrink-0" />
                 <span>{activity.city}</span>

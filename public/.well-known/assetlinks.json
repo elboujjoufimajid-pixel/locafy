@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.rachra.twa",
+        "sha256_cert_fingerprints": ["EF:EB:90:8D:49:45:33:E7:A6:DD:3F:B8:2D:3D:FA:0F:2A:0D:C8:85:D1:89:A8:B9:77:79:A9:7F:12:B1:C9:C3"]
+      }
+    }]

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const state = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 

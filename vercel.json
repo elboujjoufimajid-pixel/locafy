@@ -1,1 +1,1 @@
-{"github":{"enabled":true},"version":2}
+{"github":{"enabled":true},"version":2,"crons":[{"path":"/api/cron/reminders","schedule":"0 8 * * *"}]}

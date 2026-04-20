@@ -2,31 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { useT } from "@/lib/i18n";
-import { addReservation } from "@/lib/adminStore";
-import { getListingById } from "@/lib/adminStore";
-import { userLogin } from "@/lib/userAuth";
+import { Loader2, MessageCircle } from "lucide-react";
+import { getCurrentUser } from "@/lib/userAuth";
+import { formatPrice } from "@/lib/utils";
 
 interface Props {
   listingId: string;
+  listingTitle: string;
   startDate: string;
   endDate: string;
   total: number;
 }
 
-export default function CheckoutForm({ listingId, startDate, endDate, total }: Props) {
+const ADMIN_PHONE = "212600287382";
+
+export default function CheckoutForm({ listingId, listingTitle, startDate, endDate, total }: Props) {
   const router = useRouter();
-  const { t } = useT();
+  const user = getCurrentUser();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -35,148 +33,82 @@ export default function CheckoutForm({ listingId, startDate, endDate, total }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.firstName || !form.lastName || !form.email || !form.phone) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 2000));
 
-    // Save user session
-    userLogin(form.email, `${form.firstName} ${form.lastName}`, form.phone, "client");
-
-    // Save reservation to admin store
-    const listing = getListingById(listingId);
-    const saved = addReservation({
-      listingTitle: listing?.title || listingId,
-      listingImage: listing?.images[0],
-      listingCity: listing?.city,
-      type: "listing",
-      guest: `${form.firstName} ${form.lastName}`,
-      guestEmail: form.email,
-      phone: form.phone,
-      startDate,
-      endDate,
-      total,
+    // Save reservation to Supabase
+    const res = await fetch("/api/db/reservations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        listingTitle,
+        listingId,
+        type: "listing",
+        guest: `${form.firstName} ${form.lastName}`,
+        guestEmail: form.email,
+        phone: form.phone,
+        startDate,
+        endDate,
+        total,
+      }),
     });
+    const reservation = await res.json();
 
-    router.push(
-      `/checkout/success?reservationId=${saved.id}&listingId=${listingId}&total=${total}`
+    // Notify admin via WhatsApp
+    const msg = encodeURIComponent(
+      `🔔 *Nouvelle réservation — Rachra.com*\n\n` +
+      `📋 N° *${reservation.id}*\n` +
+      `🏠 ${listingTitle}\n` +
+      `👤 ${form.firstName} ${form.lastName}\n` +
+      `📞 ${form.phone}\n` +
+      `✉️ ${form.email}\n` +
+      `📅 ${startDate} → ${endDate}\n` +
+      `💰 *${formatPrice(total)}*`
     );
+    window.open(`https://wa.me/${ADMIN_PHONE}?text=${msg}`, "_blank");
+
+    router.push(`/checkout/success?reservationId=${reservation.id}&total=${total}&listingId=${listingId}`);
   }
 
-  const inputClass =
-    "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-200 transition";
-
-  const c = t.checkout;
+  const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Personal info */}
-      <div>
-        <p className="text-sm font-medium text-gray-700 mb-3">{c.personalInfo}</p>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">{c.firstName}</label>
-            <input
-              name="firstName"
-              value={form.firstName}
-              onChange={handleChange}
-              placeholder={c.firstNamePH}
-              required
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">{c.lastName}</label>
-            <input
-              name="lastName"
-              value={form.lastName}
-              onChange={handleChange}
-              placeholder={c.lastNamePH}
-              required
-              className={inputClass}
-            />
-          </div>
+      <p className="text-sm font-semibold text-gray-800 mb-3">Vos informations</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Prénom</label>
+          <input name="firstName" value={form.firstName} onChange={handleChange} placeholder="Mohamed" required className={inputClass} />
         </div>
-        <div className="mt-3">
-          <label className="block text-xs text-gray-500 mb-1">{c.email}</label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="vous@email.com"
-            required
-            className={inputClass}
-          />
-        </div>
-        <div className="mt-3">
-          <label className="block text-xs text-gray-500 mb-1">{c.phone}</label>
-          <input
-            type="tel"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="06 XX XX XX XX"
-            required
-            className={inputClass}
-          />
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Nom</label>
+          <input name="lastName" value={form.lastName} onChange={handleChange} placeholder="Benali" required className={inputClass} />
         </div>
       </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1.5">Email</label>
+        <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="vous@email.com" required className={inputClass} />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1.5">Téléphone</label>
+        <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="06 XX XX XX XX" required className={inputClass} />
+      </div>
 
-      {/* Card info */}
-      <div className="pt-2">
-        <p className="text-sm font-medium text-gray-700 mb-3">{c.paymentInfo}</p>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">{c.cardNumber}</label>
-          <input
-            name="cardNumber"
-            value={form.cardNumber}
-            onChange={handleChange}
-            placeholder="0000 0000 0000 0000"
-            maxLength={19}
-            required
-            className={inputClass}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3 mt-3">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">{c.expiry}</label>
-            <input
-              name="expiry"
-              value={form.expiry}
-              onChange={handleChange}
-              placeholder="MM/AA"
-              maxLength={5}
-              required
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">{c.cvv}</label>
-            <input
-              name="cvv"
-              value={form.cvv}
-              onChange={handleChange}
-              placeholder="123"
-              maxLength={4}
-              required
-              className={inputClass}
-            />
-          </div>
-        </div>
+      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+        <p className="font-semibold mb-1">ℹ️ Confirmation de réservation</p>
+        <p className="text-xs text-blue-600">
+          Votre réservation sera envoyée à l&apos;admin via WhatsApp. Vous serez contacté sous 24h pour confirmer et arranger le paiement.
+        </p>
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+        className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3.5 rounded-xl font-bold text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
       >
         {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            {c.processing}
-          </>
+          <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours...</>
         ) : (
-          `${c.pay} ${total.toLocaleString("fr-MA")} MAD`
+          <><MessageCircle className="w-4 h-4" /> Réserver — {formatPrice(total)}</>
         )}
       </button>
     </form>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isAdminLoggedIn } from "@/lib/adminAuth";
-import { getActivities, deleteActivity } from "@/lib/adminStore";
 import type { Activity } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
@@ -25,16 +24,17 @@ export default function AdminActivities() {
 
   useEffect(() => {
     if (!isAdminLoggedIn()) { router.push("/admin/login"); return; }
-    setActs(getActivities());
-    setReady(true);
+    fetch("/api/db/activities?admin=true")
+      .then((r) => r.json())
+      .then((data) => { setActs(Array.isArray(data) ? data : []); setReady(true); });
   }, [router]);
 
   if (!ready) return null;
 
-  function handleDelete(id: string, title: string) {
+  async function handleDelete(id: string, title: string) {
     if (!confirm(`Supprimer "${title}" ?`)) return;
-    deleteActivity(id);
-    setActs(getActivities());
+    await fetch(`/api/db/activities/${id}`, { method: "DELETE" });
+    setActs((prev) => prev.filter((a) => a.id !== id));
   }
 
   const filtered = acts.filter(

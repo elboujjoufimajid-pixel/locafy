@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { getFavorites } from "@/lib/favoritesStore";
-import { getListings } from "@/lib/adminStore";
 import ListingCard from "@/components/ListingCard";
 import type { Listing } from "@/lib/data";
 import Link from "next/link";
@@ -13,8 +12,13 @@ export default function FavorisPage() {
 
   useEffect(() => {
     const favIds = getFavorites();
-    const all = getListings();
-    setFavListings(all.filter((l) => favIds.includes(l.id)));
+    if (favIds.length === 0) return;
+    fetch("/api/db/listings")
+      .then((r) => r.json())
+      .then((data) => {
+        const all = Array.isArray(data) ? data : [];
+        setFavListings(all.filter((l: Listing) => favIds.includes(l.id)));
+      });
   }, []);
 
   return (

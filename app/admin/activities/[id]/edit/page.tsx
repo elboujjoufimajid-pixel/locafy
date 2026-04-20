@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { isAdminLoggedIn } from "@/lib/adminAuth";
-import { getActivities, saveActivity } from "@/lib/adminStore";
 import { CITIES } from "@/lib/data";
 import type { Activity } from "@/lib/data";
 import AdminSidebar from "@/components/AdminSidebar";
+import ImageUploader from "@/components/ImageUploader";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function EditActivityPage() {
@@ -19,9 +19,9 @@ export default function EditActivityPage() {
 
   useEffect(() => {
     if (!isAdminLoggedIn()) { router.push("/admin/login"); return; }
-    const found = getActivities().find((a) => a.id === params.id);
-    if (!found) { router.push("/admin/activities"); return; }
-    setActivity(found);
+    fetch(`/api/db/activities/${params.id}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (!data) router.push("/admin/activities"); else setActivity(data); });
   }, [router, params.id]);
 
   if (!activity) return null;
@@ -45,7 +45,11 @@ export default function EditActivityPage() {
     if (!activity) return;
     setSaving(true);
     await new Promise((r) => setTimeout(r, 600));
-    saveActivity(activity);
+    await fetch(`/api/db/activities/${activity.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(activity),
+    });
     setSaved(true);
     setSaving(false);
     setTimeout(() => router.push("/admin/activities"), 1200);
@@ -269,27 +273,8 @@ export default function EditActivityPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
               <h2 className="font-semibold text-gray-800">Images & inclus</h2>
               <div>
-                <label className={labelClass}>
-                  URLs des images (une par ligne)
-                </label>
-                <textarea
-                  value={activity.images.join("\n")}
-                  onChange={(e) =>
-                    setActivity((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            images: e.target.value
-                              .split("\n")
-                              .map((s) => s.trim())
-                              .filter(Boolean),
-                          }
-                        : prev
-                    )
-                  }
-                  rows={3}
-                  className={`${inputClass} resize-none font-mono text-xs`}
-                />
+                <label className={labelClass}>Photos</label>
+                <ImageUploader images={activity.images} onChange={(imgs) => setActivity((prev) => prev ? { ...prev, images: imgs } : prev)} />
               </div>
               <div>
                 <label className={labelClass}>

@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star } from "lucide-react";
-import { getReviews, addReview, type Review } from "@/lib/reviewsStore";
+import { Star, ShieldCheck, Lock } from "lucide-react";
 import { getCurrentUser } from "@/lib/userAuth";
+import Link from "next/link";
+
+interface Review {
+  id: string;
+  author: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
 
 export default function ReviewsSection({ listingId }: { listingId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -11,28 +20,53 @@ export default function ReviewsSection({ listingId }: { listingId: string }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [hover, setHover] = useState(0);
+  const [canReview, setCanReview] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setReviews(getReviews(listingId));
+    fetch(`/api/db/reviews?listingId=${listingId}`)
+      .then((r) => r.json())
+      .then((data) => setReviews(Array.isArray(data) ? data : []));
+
+    const user = getCurrentUser();
+    if (user?.email) {
+      fetch(`/api/db/reservations?email=${encodeURIComponent(user.email)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          const has = Array.isArray(data) && data.some(
+            (res) => res.listingId === listingId && res.status === "confirmed"
+          );
+          setCanReview(has);
+        });
+    }
   }, [listingId]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitting(true);
     const user = getCurrentUser();
-    const newReview = addReview({
-      listingId,
-      author: user ? `${user.firstName} ${user.lastName}` : "Visiteur",
-      avatar: user ? `${user.firstName[0]}${user.lastName?.[0] || ""}` : "V",
-      rating,
-      comment,
+    await fetch("/api/db/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        listingId,
+        author: user ? `${user.firstName} ${user.lastName}`.trim() : "Visiteur",
+        avatar: user ? `${user.firstName[0]}${user.lastName?.[0] || ""}`.toUpperCase() : "V",
+        rating,
+        comment,
+      }),
     });
-    setReviews([newReview, ...reviews]);
+    const updated = await fetch(`/api/db/reviews?listingId=${listingId}`).then((r) => r.json());
+    setReviews(Array.isArray(updated) ? updated : []);
     setComment("");
     setRating(5);
     setShowForm(false);
+    setSubmitting(false);
   }
 
-  const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : null;
+  const avg = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
 
   return (
     <div className="mt-8">
@@ -47,15 +81,24 @@ export default function ReviewsSection({ listingId }: { listingId: string }) {
             </div>
           )}
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="text-sm text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors font-medium"
-        >
-          + Laisser un avis
-        </button>
+        {canReview ? (
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-1.5 text-sm text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            Laisser un avis
+          </button>
+        ) : (
+          <div className="flex items-center gap-1.5 text-xs text-gray-400 border border-gray-100 px-3 py-1.5 rounded-lg">
+            <Lock className="w-3 h-3" />
+            <Link href="/listings" className="hover:text-blue-600 transition-colors">
+              Réservez pour laisser un avis
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* Review form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-blue-50 rounded-2xl p-5 mb-6 space-y-4">
           <div>
@@ -85,12 +128,13 @@ export default function ReviewsSection({ listingId }: { listingId: string }) {
           </div>
           <div className="flex gap-2">
             <button type="button" onClick={() => setShowForm(false)} className="flex-1 border border-gray-200 py-2 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Annuler</button>
-            <button type="submit" className="flex-1 bg-blue-700 text-white py-2 rounded-xl text-sm font-semibold hover:bg-blue-800">Publier</button>
+            <button type="submit" disabled={submitting} className="flex-1 bg-blue-700 text-white py-2 rounded-xl text-sm font-semibold hover:bg-blue-800 disabled:opacity-60">
+              {submitting ? "Publication..." : "Publier"}
+            </button>
           </div>
         </form>
       )}
 
-      {/* Reviews list */}
       {reviews.length === 0 ? (
         <div className="text-center py-8 text-gray-400 text-sm">
           Aucun avis pour l'instant — soyez le premier !
@@ -105,7 +149,9 @@ export default function ReviewsSection({ listingId }: { listingId: string }) {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-sm text-gray-900">{r.author}</p>
-                  <p className="text-xs text-gray-400">{r.date}</p>
+                  <p className="text-xs text-gray-400">
+                    {new Date(r.createdAt).toLocaleDateString("fr-MA", { day: "2-digit", month: "short", year: "numeric" })}
+                  </p>
                 </div>
                 <div className="flex gap-0.5">
                   {[1,2,3,4,5].map((s) => (

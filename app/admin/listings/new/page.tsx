@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAdminLoggedIn } from "@/lib/adminAuth";
-import { saveListing } from "@/lib/adminStore";
 import { CITIES } from "@/lib/data";
 import type { Listing } from "@/lib/data";
 import AdminSidebar from "@/components/AdminSidebar";
+import ImageUploader from "@/components/ImageUploader";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
@@ -36,13 +36,18 @@ export default function NewListingPage() {
     seats: "",
     transmission: "Manuelle",
     amenities: "",
-    images: "",
+    images: [] as string[],
     rating: "4.5",
     reviewCount: "0",
     available: true,
+    cancellation: "Annulation gratuite jusqu'à 24h avant l'arrivée",
+    checkIn: "14:00",
+    checkOut: "11:00",
+    pets: false,
+    smoking: false,
   });
 
-  function set(key: string, value: string | boolean) {
+  function set(key: string, value: string | boolean | string[]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
@@ -60,7 +65,7 @@ export default function NewListingPage() {
       description: form.description,
       pricePerDay: Number(form.pricePerDay),
       pricePerMonth: form.pricePerMonth ? Number(form.pricePerMonth) : undefined,
-      images: form.images ? form.images.split("\n").map((s) => s.trim()).filter(Boolean) : ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"],
+      images: form.images.length > 0 ? form.images : ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"],
       amenities: form.amenities ? form.amenities.split(",").map((s) => s.trim()).filter(Boolean) : [],
       rating: Number(form.rating),
       reviewCount: Number(form.reviewCount),
@@ -74,9 +79,20 @@ export default function NewListingPage() {
       year: form.year ? Number(form.year) : undefined,
       seats: form.seats ? Number(form.seats) : undefined,
       transmission: form.transmission || undefined,
+      policies: {
+        cancellation: form.cancellation,
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        pets: form.pets,
+        smoking: form.smoking,
+      },
     };
 
-    saveListing(listing);
+    await fetch("/api/db/listings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...listing, status: "approved" }),
+    });
     setSaved(true);
     setSaving(false);
     setTimeout(() => router.push("/admin/listings"), 1200);
@@ -205,8 +221,8 @@ export default function NewListingPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
               <h2 className="font-semibold text-gray-800 mb-2">Images & équipements</h2>
               <div>
-                <label className={labelClass}>URLs des images (une par ligne)</label>
-                <textarea value={form.images} onChange={(e) => set("images", e.target.value)} rows={3} placeholder="https://images.unsplash.com/..." className={`${inputClass} resize-none font-mono text-xs`} />
+                <label className={labelClass}>Photos</label>
+                <ImageUploader images={form.images} onChange={(imgs) => set("images", imgs)} />
               </div>
               <div>
                 <label className={labelClass}>Équipements (séparés par virgules)</label>
@@ -223,6 +239,40 @@ export default function NewListingPage() {
                     <span className="text-sm font-medium text-gray-700">Disponible</span>
                   </label>
                 </div>
+              </div>
+            </div>
+
+            {/* Policies */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+              <h2 className="font-semibold text-gray-800">Politique & Règlement</h2>
+              <div>
+                <label className={labelClass}>Politique d&apos;annulation</label>
+                <select value={form.cancellation} onChange={(e) => set("cancellation", e.target.value)} className={inputClass}>
+                  <option>Annulation gratuite jusqu&apos;à 24h avant l&apos;arrivée</option>
+                  <option>Annulation gratuite jusqu&apos;à 48h avant l&apos;arrivée</option>
+                  <option>Annulation gratuite jusqu&apos;à 7 jours avant l&apos;arrivée</option>
+                  <option>Non remboursable</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Check-in</label>
+                  <input type="time" value={form.checkIn} onChange={(e) => set("checkIn", e.target.value)} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Check-out</label>
+                  <input type="time" value={form.checkOut} onChange={(e) => set("checkOut", e.target.value)} className={inputClass} />
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.pets} onChange={(e) => set("pets", e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <span className="text-sm text-gray-700">🐾 Animaux acceptés</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.smoking} onChange={(e) => set("smoking", e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <span className="text-sm text-gray-700">🚬 Fumeurs acceptés</span>
+                </label>
               </div>
             </div>
 

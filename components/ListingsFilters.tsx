@@ -13,9 +13,10 @@ interface Props {
     minPrice?: string;
     maxPrice?: string;
   };
+  onApply?: () => void;
 }
 
-export default function ListingsFilters({ cities, current }: Props) {
+export default function ListingsFilters({ cities, current, onApply }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useT();
@@ -28,6 +29,8 @@ export default function ListingsFilters({ cities, current }: Props) {
     { value: "apartment", label: t.filters.apartments },
     { value: "house", label: t.filters.houses },
     { value: "car", label: t.filters.cars },
+    { value: "parking", label: "🅿️ Parking / Garage" },
+    { value: "local", label: "🏪 Local commercial" },
   ];
 
   function update(key: string, value: string) {
@@ -44,6 +47,7 @@ export default function ListingsFilters({ cities, current }: Props) {
       if (v && v !== "all") params.set(k, v);
     });
     router.push(`${pathname}?${params.toString()}`);
+    onApply?.();
   }
 
   function handleSearch(e: React.FormEvent) {
@@ -55,22 +59,11 @@ export default function ListingsFilters({ cities, current }: Props) {
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     router.push(`${pathname}?${params.toString()}`);
+    onApply?.();
   }
 
   return (
     <form onSubmit={handleSearch} className="space-y-6">
-      {/* Search */}
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">{t.filters.search}</label>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t.filters.searchPlaceholder}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-        />
-      </div>
-
       {/* Type */}
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-2">{t.filters.type}</label>

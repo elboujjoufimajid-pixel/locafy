@@ -1,4 +1,4 @@
-export type ListingType = "apartment" | "house" | "car";
+export type ListingType = "apartment" | "house" | "car" | "parking" | "local";
 export type ActivityCategory = "outdoor" | "restaurant" | "excursion";
 
 export interface Activity {
@@ -19,9 +19,18 @@ export interface Activity {
   maxPersons: number;
   available: boolean;
   deal?: number;
+  verified?: boolean;
   idealFor: ("family" | "couple" | "group" | "solo")[];
   cuisine?: string;
   schedule?: string;
+}
+
+export interface ListingPolicies {
+  cancellation: string;
+  checkIn: string;
+  checkOut: string;
+  pets: boolean;
+  smoking?: boolean;
 }
 
 export interface Listing {
@@ -52,6 +61,34 @@ export interface Listing {
   transmission?: string;
   available: boolean;
   deal?: number;
+  verified?: boolean;
+  availableRooms?: number;
+  lat?: number;
+  lng?: number;
+  policies?: ListingPolicies;
+  instantBook?: boolean;
+  usage?: string;
+  priceUnit?: "day" | "month";
+}
+
+export type OutingCategory = "plage" | "randonnee" | "resto" | "roadtrip" | "gaming" | "sport" | "autre";
+
+export interface GroupOuting {
+  id: string;
+  title: string;
+  description: string;
+  category: OutingCategory;
+  city: string;
+  meetingPoint: string;
+  date: string;
+  time: string;
+  maxParticipants: number;
+  participants: string[];
+  organizer: { name: string; avatar: string; phone?: string };
+  image?: string;
+  price: number;
+  tags: string[];
+  createdAt: string;
 }
 
 export const CITIES = [
@@ -137,6 +174,12 @@ export const listings: Listing[] = [
     area: 85,
     available: true,
     deal: 15,
+    verified: true,
+    availableRooms: 2,
+    lat: 34.689,
+    lng: -1.912,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
+    instantBook: true,
   },
   {
     id: "2",
@@ -161,6 +204,11 @@ export const listings: Listing[] = [
     area: 45,
     available: true,
     deal: 10,
+    availableRooms: 1,
+    lat: 35.174,
+    lng: -2.928,
+    policies: { cancellation: "Annulation gratuite jusqu'à 24h avant", checkIn: "15h00", checkOut: "10h00", pets: false },
+    instantBook: true,
   },
   {
     id: "3",
@@ -185,6 +233,10 @@ export const listings: Listing[] = [
     bathrooms: 3,
     area: 280,
     available: true,
+    verified: true,
+    lat: 34.920,
+    lng: -2.320,
+    policies: { cancellation: "Non remboursable", checkIn: "16h00", checkOut: "12h00", pets: true },
   },
   {
     id: "4",
@@ -208,6 +260,10 @@ export const listings: Listing[] = [
     bathrooms: 2,
     area: 200,
     available: true,
+    availableRooms: 3,
+    lat: 34.685,
+    lng: -1.910,
+    policies: { cancellation: "Annulation gratuite jusqu'à 72h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   {
     id: "5",
@@ -233,6 +289,11 @@ export const listings: Listing[] = [
     transmission: "Manuelle",
     available: true,
     deal: 20,
+    verified: true,
+    lat: 34.689,
+    lng: -1.915,
+    policies: { cancellation: "Annulation gratuite jusqu'à 24h avant", checkIn: "08h00", checkOut: "20h00", pets: false },
+    instantBook: true,
   },
   {
     id: "6",
@@ -257,6 +318,9 @@ export const listings: Listing[] = [
     seats: 5,
     transmission: "Automatique",
     available: true,
+    lat: 35.178,
+    lng: -2.930,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "09h00", checkOut: "21h00", pets: false },
   },
   {
     id: "7",
@@ -280,6 +344,10 @@ export const listings: Listing[] = [
     bathrooms: 2,
     area: 120,
     available: true,
+    availableRooms: 1,
+    lat: 35.172,
+    lng: -2.932,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   {
     id: "8",
@@ -303,6 +371,9 @@ export const listings: Listing[] = [
     seats: 5,
     transmission: "Manuelle",
     available: true,
+    lat: 34.688,
+    lng: -1.917,
+    policies: { cancellation: "Annulation gratuite jusqu'à 24h avant", checkIn: "08h00", checkOut: "20h00", pets: false },
   },
   // ─── Casablanca ───────────────────────────────────────────────
   {
@@ -328,6 +399,10 @@ export const listings: Listing[] = [
     area: 95,
     available: true,
     deal: 10,
+    availableRooms: 2,
+    lat: 33.592,
+    lng: -7.613,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "12h00", pets: false },
   },
   {
     id: "10",
@@ -351,6 +426,9 @@ export const listings: Listing[] = [
     bathrooms: 4,
     area: 450,
     available: true,
+    lat: 33.597,
+    lng: -7.619,
+    policies: { cancellation: "Non remboursable", checkIn: "16h00", checkOut: "12h00", pets: true },
   },
   {
     id: "11",
@@ -374,6 +452,9 @@ export const listings: Listing[] = [
     seats: 5,
     transmission: "Automatique",
     available: true,
+    lat: 33.589,
+    lng: -7.608,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "09h00", checkOut: "20h00", pets: false },
   },
   // ─── Marrakech ────────────────────────────────────────────────
   {
@@ -399,6 +480,10 @@ export const listings: Listing[] = [
     area: 320,
     available: true,
     deal: 5,
+    availableRooms: 1,
+    lat: 31.630,
+    lng: -7.992,
+    policies: { cancellation: "Annulation gratuite jusqu'à 72h avant", checkIn: "15h00", checkOut: "11h00", pets: false },
   },
   {
     id: "13",
@@ -421,6 +506,9 @@ export const listings: Listing[] = [
     bathrooms: 1,
     area: 80,
     available: true,
+    lat: 31.634,
+    lng: -7.996,
+    policies: { cancellation: "Annulation gratuite jusqu'à 24h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   // ─── Agadir ───────────────────────────────────────────────────
   {
@@ -445,6 +533,10 @@ export const listings: Listing[] = [
     area: 42,
     available: true,
     deal: 20,
+    availableRooms: 2,
+    lat: 30.419,
+    lng: -9.601,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   {
     id: "15",
@@ -468,6 +560,9 @@ export const listings: Listing[] = [
     seats: 5,
     transmission: "Automatique",
     available: true,
+    lat: 30.423,
+    lng: -9.595,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "09h00", checkOut: "20h00", pets: false },
   },
   // ─── Tanger ───────────────────────────────────────────────────
   {
@@ -491,6 +586,10 @@ export const listings: Listing[] = [
     bathrooms: 2,
     area: 140,
     available: true,
+    availableRooms: 1,
+    lat: 35.772,
+    lng: -5.803,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "12h00", pets: false },
   },
   // ─── Rabat ────────────────────────────────────────────────────
   {
@@ -514,6 +613,9 @@ export const listings: Listing[] = [
     bathrooms: 2,
     area: 110,
     available: true,
+    lat: 34.022,
+    lng: -6.844,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   // ─── Fès ──────────────────────────────────────────────────────
   {
@@ -538,6 +640,9 @@ export const listings: Listing[] = [
     area: 250,
     available: true,
     deal: 8,
+    lat: 34.036,
+    lng: -5.002,
+    policies: { cancellation: "Annulation gratuite jusqu'à 72h avant", checkIn: "15h00", checkOut: "11h00", pets: false },
   },
   // ─── Essaouira ───────────────────────────────────────────────
   {
@@ -561,6 +666,9 @@ export const listings: Listing[] = [
     bathrooms: 1,
     area: 70,
     available: true,
+    lat: 31.510,
+    lng: -9.761,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
   // ─── Dakhla ──────────────────────────────────────────────────
   {
@@ -585,6 +693,9 @@ export const listings: Listing[] = [
     area: 180,
     available: true,
     deal: 15,
+    lat: 23.685,
+    lng: -15.959,
+    policies: { cancellation: "Annulation gratuite jusqu'à 48h avant", checkIn: "14h00", checkOut: "11h00", pets: false },
   },
 ];
 
@@ -611,6 +722,7 @@ export const activities: Activity[] = [
     available: true,
     deal: 10,
     idealFor: ["family", "couple", "group"],
+    verified: true,
   },
   {
     id: "act2",
@@ -657,6 +769,7 @@ export const activities: Activity[] = [
     idealFor: ["family", "couple", "group"],
     cuisine: "Marocaine traditionnelle",
     schedule: "12h–15h / 19h–23h",
+    verified: true,
   },
   {
     id: "act4",

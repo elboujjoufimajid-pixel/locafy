@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { isAdminLoggedIn } from "@/lib/adminAuth";
-import { saveActivity } from "@/lib/adminStore";
 import { CITIES } from "@/lib/data";
 import type { Activity } from "@/lib/data";
 import AdminSidebar from "@/components/AdminSidebar";
+import ImageUploader from "@/components/ImageUploader";
 import { ArrowLeft, Save } from "lucide-react";
 
 const emptyActivity: Omit<Activity, "id"> = {
@@ -60,7 +60,11 @@ export default function NewActivityPage() {
     setSaving(true);
     await new Promise((r) => setTimeout(r, 600));
     const id = "act_" + Date.now();
-    saveActivity({ ...form, id } as Activity);
+    await fetch("/api/db/activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, id, status: "approved" }),
+    });
     router.push("/admin/activities");
   }
 
@@ -289,24 +293,8 @@ export default function NewActivityPage() {
                 Images & inclus
               </h2>
               <div>
-                <label className={labelClass}>
-                  URLs des images (une par ligne)
-                </label>
-                <textarea
-                  value={form.images.join("\n")}
-                  onChange={(e) =>
-                    set(
-                      "images",
-                      e.target.value
-                        .split("\n")
-                        .map((s) => s.trim())
-                        .filter(Boolean)
-                    )
-                  }
-                  rows={3}
-                  className={`${inputClass} resize-none font-mono text-xs`}
-                  placeholder="https://images.unsplash.com/..."
-                />
+                <label className={labelClass}>Photos</label>
+                <ImageUploader images={form.images} onChange={(imgs) => set("images", imgs)} />
               </div>
               <div>
                 <label className={labelClass}>

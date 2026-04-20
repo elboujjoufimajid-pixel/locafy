@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Star, Phone, Shield } from "lucide-react";
+import { Star, Phone, Shield, Zap } from "lucide-react";
 import type { Listing } from "@/lib/data";
 import { formatPrice, diffDays } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import DateRangePicker from "@/components/DateRangePicker";
 
 interface Props {
   listing: Listing;
@@ -16,6 +17,13 @@ export default function ReservationForm({ listing }: Props) {
   const { t } = useT();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/db/listings/${listing.id}/availability`)
+      .then((r) => r.json())
+      .then((d) => setBlockedDates(Array.isArray(d) ? d : []));
+  }, [listing.id]);
   const [guests, setGuests] = useState(1);
 
   const days = startDate && endDate ? diffDays(startDate, endDate) : 0;
@@ -59,62 +67,56 @@ export default function ReservationForm({ listing }: Props) {
       </div>
 
       {/* Date inputs */}
-      <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
-        <div className="grid grid-cols-2 divide-x divide-gray-200">
-          <div className="p-3">
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-              {r.arrival}
-            </label>
-            <input
-              type="date"
-              min={today}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full text-sm text-gray-700 outline-none"
-            />
-          </div>
-          <div className="p-3">
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-              {r.departure}
-            </label>
-            <input
-              type="date"
-              min={startDate || today}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full text-sm text-gray-700 outline-none"
-            />
-          </div>
-        </div>
-        {listing.type !== "car" && (
-          <div className="border-t border-gray-200 p-3">
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-              {r.persons}
-            </label>
-            <select
-              value={guests}
-              onChange={(e) => setGuests(Number(e.target.value))}
-              className="w-full text-sm text-gray-700 outline-none"
-            >
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n}>
-                  {n} {n > 1 ? r.persons_plural : r.person}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="mb-3">
+        <DateRangePicker
+          checkin={startDate}
+          checkout={endDate}
+          onCheckin={setStartDate}
+          onCheckout={setEndDate}
+          disabledDates={blockedDates}
+        />
       </div>
+      {listing.type !== "car" && (
+        <div className="border border-gray-200 rounded-xl p-3 mb-3">
+          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+            {r.persons}
+          </label>
+          <select
+            value={guests}
+            onChange={(e) => setGuests(Number(e.target.value))}
+            className="w-full text-sm text-gray-700 outline-none"
+          >
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <option key={n} value={n}>
+                {n} {n > 1 ? r.persons_plural : r.person}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      <button
-        onClick={handleReserve}
-        disabled={!startDate || !endDate || days <= 0}
-        className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-      >
-        {days > 0
-          ? `${r.reserve} — ${days} ${days > 1 ? r.days_plural : r.days}`
-          : r.chooseDates}
-      </button>
+      {listing.instantBook ? (
+        <button
+          onClick={handleReserve}
+          disabled={!startDate || !endDate || days <= 0}
+          className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+        >
+          <Zap className="w-4 h-4 fill-white" />
+          {days > 0
+            ? `Réserver maintenant — ${days} ${days > 1 ? r.days_plural : r.days}`
+            : "Réservation instantanée"}
+        </button>
+      ) : (
+        <button
+          onClick={handleReserve}
+          disabled={!startDate || !endDate || days <= 0}
+          className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        >
+          {days > 0
+            ? `${r.reserve} — ${days} ${days > 1 ? r.days_plural : r.days}`
+            : r.chooseDates}
+        </button>
+      )}
 
       {/* Price breakdown */}
       {days > 0 && (

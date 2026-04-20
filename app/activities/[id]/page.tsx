@@ -1,8 +1,9 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
-import { MapPin, Star, Clock, Users, CheckCircle2, ChefHat, Calendar } from "lucide-react";
-import { getActivityById } from "@/lib/adminStore";
+import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { MapPin, Star, Clock, Users, CheckCircle2, ChefHat, Calendar, BadgeCheck } from "lucide-react";
+import type { Activity } from "@/lib/data";
 import ActivityBookingForm from "@/components/ActivityBookingForm";
 import { useT } from "@/lib/i18n";
 
@@ -28,8 +29,17 @@ const idealForEmojis: Record<string, string> = {
 export default function ActivityDetailPage() {
   const params = useParams();
   const { t } = useT();
-  const activity = getActivityById(params.id as string);
-  if (!activity) notFound();
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/db/activities/${params.id}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { setActivity(data); setLoading(false); });
+  }, [params.id]);
+
+  if (loading) return <div className="max-w-7xl mx-auto px-4 py-16 text-center text-gray-400">Chargement...</div>;
+  if (!activity) return <div className="max-w-7xl mx-auto px-4 py-16 text-center text-gray-500">Activité introuvable.</div>;
 
   const a = t.activities;
 
@@ -98,10 +108,18 @@ export default function ActivityDetailPage() {
           {/* Provider */}
           <div className="flex items-center justify-between pb-6 border-b">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {t.listing.by}{" "}
-                <span className="text-blue-700">{activity.owner.name}</span>
-              </h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {t.listing.by}{" "}
+                  <span className="text-blue-700">{activity.owner.name}</span>
+                </h2>
+                {activity.verified && (
+                  <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    <BadgeCheck className="w-3.5 h-3.5" />
+                    Propriétaire Vérifié
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" /> {activity.duration}

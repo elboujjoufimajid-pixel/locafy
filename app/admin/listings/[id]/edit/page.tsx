@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { isAdminLoggedIn } from "@/lib/adminAuth";
-import { getListings, saveListing } from "@/lib/adminStore";
 import { CITIES } from "@/lib/data";
 import type { Listing } from "@/lib/data";
 import AdminSidebar from "@/components/AdminSidebar";
+import ImageUploader from "@/components/ImageUploader";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function EditListingPage() {
@@ -19,9 +19,9 @@ export default function EditListingPage() {
 
   useEffect(() => {
     if (!isAdminLoggedIn()) { router.push("/admin/login"); return; }
-    const found = getListings().find((l) => l.id === params.id);
-    if (!found) { router.push("/admin/listings"); return; }
-    setListing(found);
+    fetch(`/api/db/listings/${params.id}?admin=true`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (!data) router.push("/admin/listings"); else setListing(data); });
   }, [router, params.id]);
 
   if (!listing) return null;
@@ -30,12 +30,34 @@ export default function EditListingPage() {
     setListing((prev) => prev ? { ...prev, [key]: value } : prev);
   }
 
+  function setPolicy(key: string, value: string | boolean) {
+    setListing((prev) => {
+      if (!prev) return prev;
+      const p = prev.policies;
+      return {
+        ...prev,
+        policies: {
+          cancellation: (p?.cancellation ?? "Annulation gratuite jusqu'à 24h avant l'arrivée") as string,
+          checkIn: (p?.checkIn ?? "14:00") as string,
+          checkOut: (p?.checkOut ?? "11:00") as string,
+          pets: (p?.pets ?? false) as boolean,
+          smoking: p?.smoking ?? false,
+          [key]: value,
+        },
+      };
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!listing) return;
     setSaving(true);
     await new Promise((r) => setTimeout(r, 600));
-    saveListing(listing);
+    await fetch(`/api/db/listings/${listing.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(listing),
+    });
     setSaved(true);
     setSaving(false);
     setTimeout(() => router.push("/admin/listings"), 1200);
@@ -148,8 +170,8 @@ export default function EditListingPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
               <h2 className="font-semibold text-gray-800">Images & équipements</h2>
               <div>
-                <label className={labelClass}>URLs des images (une par ligne)</label>
-                <textarea value={listing.images.join("\n")} onChange={(e) => setListing((prev) => prev ? { ...prev, images: e.target.value.split("\n").map(s => s.trim()).filter(Boolean) } : prev)} rows={3} className={`${inputClass} resize-none font-mono text-xs`} />
+                <label className={labelClass}>Photos</label>
+                <ImageUploader images={listing.images} onChange={(imgs) => setListing((prev) => prev ? { ...prev, images: imgs } : prev)} />
               </div>
               <div>
                 <label className={labelClass}>Équipements (séparés par virgules)</label>
@@ -166,6 +188,52 @@ export default function EditListingPage() {
                     <span className="text-sm font-medium text-gray-700">Disponible</span>
                   </label>
                 </div>
+              </div>
+            </div>
+
+            {/* Policies */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+              <h2 className="font-semibold text-gray-800">Politique & Règlement</h2>
+              <div>
+                <label className={labelClass}>Politique d&apos;annulation</label>
+                <select
+                  value={listing.policies?.cancellation || "Annulation gratuite jusqu'à 24h avant l'arrivée"}
+                  onChange={(e) => setPolicy("cancellation", e.target.value)}
+                  className={inputClass}
+                >
+                  <option>Annulation gratuite jusqu&apos;à 24h avant l&apos;arrivée</option>
+                  <option>Annulation gratuite jusqu&apos;à 48h avant l&apos;arrivée</option>
+                  <option>Annulation gratuite jusqu&apos;à 7 jours avant l&apos;arrivée</option>
+                  <option>Non remboursable</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Check-in</label>
+                  <input type="time" value={listing.policies?.checkIn || "14:00"}
+                    onChange={(e) => setPolicy("checkIn", e.target.value)}
+                    className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Check-out</label>
+                  <input type="time" value={listing.policies?.checkOut || "11:00"}
+                    onChange={(e) => setPolicy("checkOut", e.target.value)}
+                    className={inputClass} />
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={listing.policies?.pets || false}
+                    onChange={(e) => setPolicy("pets", e.target.checked)}
+                    className="w-4 h-4 accent-blue-600" />
+                  <span className="text-sm text-gray-700">🐾 Animaux acceptés</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={listing.policies?.smoking || false}
+                    onChange={(e) => setPolicy("smoking", e.target.checked)}
+                    className="w-4 h-4 accent-blue-600" />
+                  <span className="text-sm text-gray-700">🚬 Fumeurs acceptés</span>
+                </label>
               </div>
             </div>
 

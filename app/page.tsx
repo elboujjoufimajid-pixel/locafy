@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Search, MapPin, Star, Shield, Clock, BedDouble, Home, Car, Users, CalendarDays, Zap } from "lucide-react";
-import { getListings, getActivities } from "@/lib/adminStore";
+import { useState, useEffect } from "react";
+import { Search, Star, Shield, Clock, BedDouble, Home, Car, Users, Zap, Compass, MapPin, X } from "lucide-react";
+import DateRangePicker from "@/components/DateRangePicker";
 import { CITIES } from "@/lib/data";
+import { useRef } from "react";
+import type { Listing } from "@/lib/data";
 import ListingCard from "@/components/ListingCard";
 import ActivityCard from "@/components/ActivityCard";
 import { useT } from "@/lib/i18n";
+import { getCurrentUser } from "@/lib/userAuth";
+import type { UserProfile } from "@/lib/userAuth";
+import { getRecentlyViewed } from "@/lib/recentlyViewedStore";
+import type { Activity } from "@/lib/data";
+
+type HeroTab = "logements" | "voitures" | "activites";
 
 export default function HomePage() {
   const { t } = useT();
@@ -19,19 +27,59 @@ export default function HomePage() {
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
   const [guests, setGuests] = useState(1);
+  const [activeTab, setActiveTab] = useState<HeroTab>("logements");
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [featuredActivities, setFeaturedActivities] = useState<Activity[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  const allListings = getListings();
+  useEffect(() => {
+    setUser(getCurrentUser());
+    fetch("/api/db/listings")
+      .then((r) => r.json())
+      .then((data) => setAllListings(Array.isArray(data) ? data : []));
+    fetch("/api/db/activities")
+      .then((r) => r.json())
+      .then((data) => setFeaturedActivities(Array.isArray(data) ? data.slice(0, 3) : []));
+  }, []);
+
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, []);
+
+  const suggestions = destination.trim().length >= 1
+    ? CITIES.filter(c => c.toLowerCase().includes(destination.toLowerCase())).slice(0, 6)
+    : [];
+
   const featured = allListings.filter((l) => !l.deal).slice(0, 6);
   const deals = allListings.filter((l) => l.deal);
-  const featuredActivities = getActivities().slice(0, 3);
-  const topCities = ["Casablanca", "Rabat", "Marrakech", "Agadir", "Tanger", "Fès", "Oujda"];
+
+  const recentlyViewedIds = getRecentlyViewed();
+  const recentlyViewed = recentlyViewedIds
+    .map((id) => allListings.find((l) => l.id === id))
+    .filter(Boolean) as typeof allListings;
 
   const today = new Date().toISOString().split("T")[0];
+
+  const tabRoutes: Record<HeroTab, string> = {
+    logements: "/listings",
+    voitures: "/listings?type=car",
+    activites: "/activities",
+  };
 
   function handleSearch() {
     const params = new URLSearchParams();
     if (destination) params.set("search", destination);
-    router.push(`/listings?${params.toString()}`);
+    if (activeTab === "voitures") params.set("type", "car");
+    const base = activeTab === "activites" ? "/activities" : "/listings";
+    router.push(`${base}?${params.toString()}`);
   }
 
   const stats = [
@@ -41,121 +89,170 @@ export default function HomePage() {
     { label: h.stats.satisfaction, value: "98%" },
   ];
 
+  const tabs: { id: HeroTab; label: string; icon: string }[] = [
+    { id: "logements", label: h.tabLogements, icon: "🏠" },
+    { id: "voitures", label: h.tabVoitures, icon: "🚗" },
+    { id: "activites", label: h.tabActivites, icon: "🎯" },
+  ];
+
   return (
     <div>
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-blue-800 to-blue-950 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <MapPin className="w-5 h-5 text-blue-300" />
-              <span className="text-blue-200 text-sm font-medium">{h.region}</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              {h.heroTitle1}
-              <br />
-              <span className="text-blue-300">{h.heroTitle2}</span>
-            </h1>
-            <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
-              {h.heroSubtitle}
-            </p>
+      {/* Hero — Booking.com style */}
+      <section style={{ backgroundColor: "#003580" }} className="text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 md:pt-10 md:pb-16">
 
-            {/* Booking-style search bar */}
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
-              <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                {/* Destination */}
-                <div className="flex items-center gap-3 px-4 py-3 flex-1">
-                  <Search className="w-5 h-5 text-blue-600 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h.search}</p>
-                    <input
-                      type="text"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      placeholder={h.searchPlaceholder}
-                      className="w-full text-gray-800 text-sm outline-none placeholder:text-gray-400 mt-0.5"
-                    />
-                  </div>
-                </div>
+          {/* Category tabs */}
+          <div className="flex items-center gap-1 mb-8 border-b border-white/20">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-white text-[#003580] border-b-2 border-white"
+                    : "text-white/80 hover:bg-white/10"
+                }`}
+              >
+                <span>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-                {/* Check-in */}
-                <div className="flex items-center gap-3 px-4 py-3 md:w-40">
-                  <CalendarDays className="w-5 h-5 text-blue-600 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h.checkin}</p>
-                    <input
-                      type="date"
-                      min={today}
-                      value={checkin}
-                      onChange={(e) => setCheckin(e.target.value)}
-                      className="w-full text-gray-800 text-sm outline-none mt-0.5"
-                    />
-                  </div>
-                </div>
+          {/* Title — personalized like Booking.com */}
+          <div className="mb-5 md:mb-7">
+            {user ? (
+              <>
+                <p className="text-blue-200 text-xs md:text-sm mb-1">{h.heroPersonalSubtitle}</p>
+                <h1 className="text-2xl md:text-3xl font-extrabold mb-1 leading-tight">
+                  {h.heroGreeting.replace("{name}", `${user.firstName || ""} ${user.lastName || ""}`.trim().toUpperCase())}
+                </h1>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl md:text-4xl font-bold mb-1">
+                  {h.heroTitle}
+                </h1>
+                <p className="text-blue-200 text-sm md:text-base hidden sm:block">
+                  {h.heroAnonSubtitle}
+                </p>
+              </>
+            )}
+          </div>
 
-                {/* Check-out */}
-                <div className="flex items-center gap-3 px-4 py-3 md:w-40">
-                  <CalendarDays className="w-5 h-5 text-blue-600 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h.checkout}</p>
-                    <input
-                      type="date"
-                      min={checkin || today}
-                      value={checkout}
-                      onChange={(e) => setCheckout(e.target.value)}
-                      className="w-full text-gray-800 text-sm outline-none mt-0.5"
-                    />
-                  </div>
-                </div>
-
-                {/* Guests */}
-                <div className="flex items-center gap-3 px-4 py-3 md:w-36">
-                  <Users className="w-5 h-5 text-blue-600 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h.guests}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setGuests(Math.max(1, guests - 1))}
-                        className="w-5 h-5 rounded-full border border-gray-300 text-gray-600 flex items-center justify-center text-xs hover:border-blue-600 hover:text-blue-700 transition-colors"
-                      >-</button>
-                      <span className="text-gray-800 text-sm font-medium w-4 text-center">{guests}</span>
-                      <button
-                        type="button"
-                        onClick={() => setGuests(Math.min(10, guests + 1))}
-                        className="w-5 h-5 rounded-full border border-gray-300 text-gray-600 flex items-center justify-center text-xs hover:border-blue-600 hover:text-blue-700 transition-colors"
-                      >+</button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Search button */}
-                <button
-                  onClick={handleSearch}
-                  className="bg-blue-700 text-white px-8 py-4 font-semibold hover:bg-blue-800 transition-colors text-sm md:rounded-none flex items-center justify-center gap-2"
-                >
-                  <Search className="w-4 h-4" />
-                  {h.search}
+          {/* Search bar — yellow border like Booking.com */}
+          <div
+            className="flex flex-col md:flex-row rounded-lg shadow-xl overflow-visible"
+            style={{ border: "3px solid #febb02" }}
+          >
+            {/* Destination with autocomplete */}
+            <div ref={searchRef} className="relative flex items-center gap-3 bg-white px-4 py-3 flex-1 min-w-0 rounded-l-lg">
+              <Search className="w-5 h-5 text-gray-400 shrink-0" />
+              <input
+                type="text"
+                value={destination}
+                onChange={(e) => { setDestination(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={(e) => { if (e.key === "Enter") { setShowSuggestions(false); handleSearch(); } }}
+                placeholder={activeTab === "activites" ? h.searchActivity : h.searchWhere}
+                className="w-full text-gray-800 text-sm outline-none placeholder:text-gray-400"
+              />
+              {destination && (
+                <button onClick={() => { setDestination(""); setShowSuggestions(false); }}
+                  className="text-gray-300 hover:text-gray-500 shrink-0">
+                  <X className="w-4 h-4" />
                 </button>
+              )}
+              {/* Suggestions dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+                  style={{ minWidth: 320 }}>
+                  {suggestions.map((city) => (
+                    <button
+                      key={city}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setDestination(city);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left group"
+                    >
+                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-blue-100">
+                        <MapPin className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{city}</p>
+                        <p className="text-xs text-gray-400">Maroc</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="hidden md:block w-px bg-gray-200" />
+
+            {/* Date range picker — hidden on mobile */}
+            <div className="hidden md:block">
+              <DateRangePicker
+                checkin={checkin}
+                checkout={checkout}
+                onCheckin={setCheckin}
+                onCheckout={setCheckout}
+                days={h.days}
+                months={h.months}
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="hidden md:block w-px bg-gray-200" />
+
+            {/* Guests — hidden on mobile */}
+            <div className="hidden md:flex items-center gap-3 bg-white px-4 py-3 md:w-40">
+              <Users className="w-4 h-4 text-gray-400 shrink-0" />
+              <div className="flex-1">
+                <p className="text-xs text-gray-400">{h.persons}</p>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setGuests(Math.max(1, guests - 1))}
+                    className="w-5 h-5 rounded-full border border-gray-300 text-gray-500 flex items-center justify-center text-xs hover:border-blue-600 transition-colors">−</button>
+                  <span className="text-gray-800 text-sm font-medium">{guests}</span>
+                  <button type="button" onClick={() => setGuests(Math.min(20, guests + 1))}
+                    className="w-5 h-5 rounded-full border border-gray-300 text-gray-500 flex items-center justify-center text-xs hover:border-blue-600 transition-colors">+</button>
+                </div>
               </div>
             </div>
 
-            {/* Quick city filters */}
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
-              {topCities.map((city) => (
-                <Link
-                  key={city}
-                  href={`/listings?city=${city}`}
-                  className="bg-white/10 backdrop-blur-sm text-white text-sm px-4 py-1.5 rounded-full hover:bg-white/20 transition-colors border border-white/20"
-                >
-                  {city}
-                </Link>
-              ))}
-            </div>
+            {/* Search button */}
+            <button
+              onClick={handleSearch}
+              style={{ backgroundColor: "#0071c2" }}
+              className="text-white px-8 py-4 font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shrink-0 rounded-r-lg"
+            >
+              <Search className="w-4 h-4" />
+              {h.search}
+            </button>
+          </div>
+
+          {/* Quick links below search */}
+          <div className="flex flex-wrap gap-4 mt-5">
+            {[
+              { label: "Oujda", href: "/listings?city=Oujda" },
+              { label: "Nador", href: "/listings?city=Nador" },
+              { label: "Berkane", href: "/listings?city=Berkane" },
+              { label: "Casablanca", href: "/listings?city=Casablanca" },
+              { label: "Marrakech", href: "/listings?city=Marrakech" },
+              { label: "Agadir", href: "/listings?city=Agadir" },
+              { label: "Tanger", href: "/listings?city=Tanger" },
+            ].map((c) => (
+              <Link
+                key={c.label}
+                href={c.href}
+                className="text-sm text-white/80 hover:text-white underline underline-offset-2 decoration-white/40 hover:decoration-white transition-colors"
+              >
+                {c.label}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -220,6 +317,80 @@ export default function HomePage() {
                 <span className="text-sm text-white/80">{h.categories.carsSub}</span>
               </div>
             </div>
+          </Link>
+        </div>
+
+        {/* New types quick links */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <Link href="/listings?type=parking">
+            <div className="group flex items-center gap-4 bg-teal-50 border border-teal-100 rounded-2xl p-5 hover:bg-teal-100 transition-colors cursor-pointer">
+              <span className="text-4xl">🅿️</span>
+              <div>
+                <p className="font-bold text-teal-800 text-base">Parking & Garages</p>
+                <p className="text-teal-600 text-sm">Trouvez une place sécurisée</p>
+              </div>
+            </div>
+          </Link>
+          <Link href="/listings?type=local">
+            <div className="group flex items-center gap-4 bg-amber-50 border border-amber-100 rounded-2xl p-5 hover:bg-amber-100 transition-colors cursor-pointer">
+              <span className="text-4xl">🏪</span>
+              <div>
+                <p className="font-bold text-amber-800 text-base">Locaux commerciaux</p>
+                <p className="text-amber-600 text-sm">Boutique, snack, bureau...</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Popular destinations */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Compass className="w-5 h-5 text-blue-700" />
+            <span className="text-blue-700 font-semibold text-sm">Destinations populaires</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Où voulez-vous aller ?</h2>
+          <p className="text-gray-500 mt-1">Découvrez les meilleures locations au Maroc</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { city: "Oujda", img: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=400", listings: allListings.filter(l => l.city === "Oujda").length },
+            { city: "Nador", img: "https://images.unsplash.com/photo-1570721352060-8a5b8c71e936?w=400", listings: allListings.filter(l => l.city === "Nador").length },
+            { city: "Marrakech", img: "https://images.unsplash.com/photo-1597211833712-5e41faa202ea?w=400", listings: allListings.filter(l => l.city === "Marrakech").length },
+            { city: "Agadir", img: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=400", listings: allListings.filter(l => l.city === "Agadir").length },
+            { city: "Tanger", img: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400", listings: allListings.filter(l => l.city === "Tanger").length },
+            { city: "Fès", img: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=400", listings: allListings.filter(l => l.city === "Fès").length },
+            { city: "Casablanca", img: "https://images.unsplash.com/photo-1590156562745-5f671fd39a27?w=400", listings: allListings.filter(l => l.city === "Casablanca").length },
+            { city: "Berkane", img: "https://images.unsplash.com/photo-1548013146-72479768bada?w=400", listings: allListings.filter(l => l.city === "Berkane").length },
+          ].map((d) => (
+            <Link key={d.city} href={`/listings?city=${d.city}`}>
+              <div className="group relative rounded-2xl overflow-hidden h-36 cursor-pointer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={d.img} alt={d.city} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="text-white font-bold text-sm">{d.city}</p>
+                  <p className="text-white/70 text-xs">{d.listings > 0 ? `${d.listings} annonce${d.listings > 1 ? "s" : ""}` : "Disponible"}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Je cherche banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-white">
+            <h2 className="text-xl font-bold mb-1">📋 Vous cherchez un bien à louer ?</h2>
+            <p className="text-blue-200 text-sm">Publiez votre demande — les propriétaires vous contactent directement sur WhatsApp</p>
+          </div>
+          <Link
+            href="/cherche/new"
+            className="shrink-0 bg-[#febb02] text-[#003580] font-bold px-6 py-3 rounded-xl text-sm hover:bg-yellow-400 transition-colors"
+          >
+            Je cherche →
           </Link>
         </div>
       </section>
@@ -304,6 +475,23 @@ export default function HomePage() {
                 <ListingCard key={listing.id} listing={listing} />
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recently Viewed */}
+      {recentlyViewed.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">Vus récemment</h2>
+              <p className="text-gray-500 text-sm">Continuez votre recherche</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recentlyViewed.slice(0, 3).map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
           </div>
         </section>
       )}

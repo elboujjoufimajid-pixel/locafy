@@ -1,9 +1,11 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { CITIES } from "@/lib/data";
+
+const CAR_BRANDS = ["Dacia", "Renault", "Peugeot", "Citroën", "Toyota", "Hyundai", "Kia", "Volkswagen", "Ford", "Fiat", "Opel", "Seat", "Mercedes", "BMW", "Audi", "Nissan", "Honda", "Suzuki", "Chevrolet", "Skoda", "Volvo", "Mitsubishi", "Mazda", "Jeep"];
 import { saveListing } from "@/lib/adminStore";
 import { getCurrentUser } from "@/lib/userAuth";
 import type { Listing } from "@/lib/data";
@@ -14,6 +16,8 @@ const typeOptions = [
   { value: "apartment", label: "Appartement", icon: "🏢" },
   { value: "house", label: "Maison / Villa", icon: "🏡" },
   { value: "car", label: "Voiture", icon: "🚗" },
+  { value: "parking", label: "Parking / Garage", icon: "🅿️" },
+  { value: "local", label: "Local commercial", icon: "🏪" },
 ];
 
 const amenitiesList = ["WiFi", "Climatisation", "Parking", "Piscine", "Ascenseur", "Balcon", "Jardin", "Barbecue", "GPS", "Bluetooth", "Assurance incluse"];
@@ -23,6 +27,9 @@ export default function NewListingForm() {
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     type: "",
     title: "",
@@ -40,6 +47,8 @@ export default function NewListingForm() {
     seats: "",
     transmission: "Manuelle",
     amenities: [] as string[],
+    usage: "",
+    priceUnit: "day" as "day" | "month",
     contactName: "",
     contactPhone: "",
     contactEmail: "",
@@ -47,6 +56,34 @@ export default function NewListingForm() {
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function compressImage(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX = 800;
+          let w = img.width, h = img.height;
+          if (w > MAX) { h = (h * MAX) / w; w = MAX; }
+          if (h > MAX) { w = (w * MAX) / h; h = MAX; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.75));
+        };
+        img.src = e.target!.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFiles(files: FileList | null) {
+    if (!files) return;
+    const valid = Array.from(files).filter((f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024);
+    const compressed = await Promise.all(valid.map(compressImage));
+    setPhotos((prev) => [...prev, ...compressed].slice(0, 5));
   }
 
   function toggleAmenity(a: string) {
@@ -77,7 +114,7 @@ export default function NewListingForm() {
       address: form.address,
       pricePerDay: Number(form.pricePerDay),
       pricePerMonth: form.pricePerMonth ? Number(form.pricePerMonth) : undefined,
-      images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"],
+      images: photos.length > 0 ? photos : ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"],
       amenities: form.amenities,
       rating: 0,
       reviewCount: 0,
@@ -95,9 +132,36 @@ export default function NewListingForm() {
       seats: form.seats ? Number(form.seats) : undefined,
       transmission: form.transmission || undefined,
       available: true,
+      usage: form.usage || undefined,
+      priceUnit: (form.type === "parking" || form.type === "local") ? form.priceUnit : undefined,
     };
 
-    saveListing(newListing);
+    // Save to database
+    await fetch("/api/db/listings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newListing),
+    }).catch(() => {});
+
+    // Notify admin by email
+    fetch("/api/notify-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: newListing.type,
+        title: newListing.title,
+        city: newListing.city,
+        pricePerDay: newListing.pricePerDay,
+        ownerName: newListing.owner.name,
+        ownerPhone: newListing.owner.phone,
+        brand: newListing.brand,
+        model: newListing.model,
+        year: newListing.year,
+        transmission: newListing.transmission,
+        seats: newListing.seats,
+      }),
+    }).catch(() => {});
+
     if (user) {
       router.push("/dashboard");
     } else {
@@ -106,7 +170,7 @@ export default function NewListingForm() {
   }
 
   const inputClass =
-    "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-200 transition";
+    "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-200 transition";
 
   const user = getCurrentUser();
 
@@ -164,7 +228,7 @@ export default function NewListingForm() {
         {step === 1 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-semibold text-gray-900">Type de bien</h2>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {typeOptions.map((t) => (
                 <button
                   key={t.value}
@@ -248,7 +312,26 @@ export default function NewListingForm() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-semibold text-gray-900">Détails du bien</h2>
 
-            {form.type !== "car" ? (
+            {(form.type === "parking" || form.type === "local") ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Surface (m²) — optionnel</label>
+                  <input type="number" min="0" value={form.area} onChange={(e) => set("area", e.target.value)} placeholder="50" className={inputClass} />
+                </div>
+                {form.type === "local" && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Usage suggéré (optionnel)</label>
+                    <input
+                      value={form.usage}
+                      onChange={(e) => set("usage", e.target.value)}
+                      placeholder="Restaurant, Snack, Commerce, Stockage, Bureau..."
+                      className={inputClass}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Laissez libre pour que les locataires proposent eux-mêmes</p>
+                  </div>
+                )}
+              </div>
+            ) : form.type !== "car" ? (
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Chambres</label>
@@ -267,7 +350,21 @@ export default function NewListingForm() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Marque</label>
-                  <input value={form.brand} onChange={(e) => set("brand", e.target.value)} placeholder="Dacia" className={inputClass} />
+                  <div className="relative">
+                    <input
+                      value={form.brand}
+                      onChange={(e) => set("brand", e.target.value)}
+                      placeholder="Dacia, Renault..."
+                      className={inputClass}
+                      list="car-brands-list"
+                      autoComplete="off"
+                    />
+                    <datalist id="car-brands-list">
+                      {CAR_BRANDS.filter(b => !form.brand || b.toLowerCase().startsWith(form.brand.toLowerCase())).map(b => (
+                        <option key={b} value={b} />
+                      ))}
+                    </datalist>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Modèle</label>
@@ -326,34 +423,88 @@ export default function NewListingForm() {
 
             {/* Upload zone */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-2">Photos</label>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-blue-300 transition-colors cursor-pointer">
+              <label className="block text-xs font-medium text-gray-700 mb-2">Photos (max 5)</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragOver ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
+              >
                 <Upload className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Glissez vos photos ici</p>
                 <p className="text-xs text-gray-400 mt-1">PNG, JPG — max 5MB chacune</p>
-                <button type="button" className="mt-3 text-xs text-blue-700 border border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50">
+                <span className="mt-3 inline-block text-xs text-blue-700 border border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50">
                   Choisir des fichiers
-                </button>
+                </span>
               </div>
+
+              {/* Preview thumbnails */}
+              {photos.length > 0 && (
+                <div className="flex gap-2 mt-3 flex-wrap">
+                  {photos.map((src, i) => (
+                    <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setPhotos((prev) => prev.filter((_, j) => j !== i)); }}
+                        className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-black"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Pricing */}
+            {(form.type === "parking" || form.type === "local") && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Prix par</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, priceUnit: "day" }))}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${form.priceUnit === "day" ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600"}`}
+                  >
+                    Jour
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, priceUnit: "month" }))}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${form.priceUnit === "month" ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600"}`}
+                  >
+                    Mois
+                  </button>
+                </div>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                Prix par jour (MAD) *
+                Prix (MAD) {(form.type === "parking" || form.type === "local") ? `par ${form.priceUnit === "month" ? "mois" : "jour"}` : "par jour"} *
               </label>
               <input
                 type="number"
                 value={form.pricePerDay}
                 onChange={(e) => set("pricePerDay", e.target.value)}
-                placeholder="350"
+                placeholder={form.priceUnit === "month" ? "2000" : "350"}
                 required
                 min="1"
                 className={inputClass}
               />
             </div>
 
-            {form.type !== "car" && (
+            {form.type !== "car" && form.type !== "parking" && form.type !== "local" && (
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Prix par mois (MAD) — optionnel
