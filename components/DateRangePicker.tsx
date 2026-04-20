@@ -229,7 +229,7 @@ export default function DateRangePicker({ checkin, checkout, onCheckin, onChecko
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4 w-[320px] sm:w-auto sm:min-w-[640px]">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4 w-[calc(100vw-2rem)] max-w-[320px] sm:max-w-none sm:w-auto sm:min-w-[640px]">
 
           {/* Navigation */}
           <div className="flex items-center justify-between mb-2 px-1">
