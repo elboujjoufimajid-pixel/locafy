@@ -6,7 +6,6 @@ import { Star, Phone, Shield, Zap } from "lucide-react";
 import type { Listing } from "@/lib/data";
 import { formatPrice, diffDays } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
-import DateRangePicker from "@/components/DateRangePicker";
 
 interface Props {
   listing: Listing;
@@ -67,14 +66,27 @@ export default function ReservationForm({ listing }: Props) {
       </div>
 
       {/* Date inputs */}
-      <div className="mb-3">
-        <DateRangePicker
-          checkin={startDate}
-          checkout={endDate}
-          onCheckin={setStartDate}
-          onCheckout={setEndDate}
-          disabledDates={blockedDates}
-        />
+      <div className="grid grid-cols-2 border border-gray-200 rounded-xl overflow-hidden mb-3">
+        <div className="p-3 border-r border-gray-200">
+          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Arrivée</label>
+          <input
+            type="date"
+            value={startDate}
+            min={today}
+            onChange={(e) => { setStartDate(e.target.value); if (endDate && e.target.value >= endDate) setEndDate(""); }}
+            className="w-full text-sm text-gray-800 outline-none bg-transparent"
+          />
+        </div>
+        <div className="p-3">
+          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Départ</label>
+          <input
+            type="date"
+            value={endDate}
+            min={startDate || today}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full text-sm text-gray-800 outline-none bg-transparent"
+          />
+        </div>
       </div>
       {listing.type !== "car" && (
         <div className="border border-gray-200 rounded-xl p-3 mb-3">
