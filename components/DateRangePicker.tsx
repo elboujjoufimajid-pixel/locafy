@@ -229,18 +229,7 @@ export default function DateRangePicker({ checkin, checkout, onCheckin, onChecko
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-5"
-          style={{ minWidth: 640 }}>
-
-          {/* Tabs */}
-          <div className="flex border-b border-gray-100 mb-5">
-            <button className="px-6 py-2.5 text-sm font-semibold text-[#0071c2] border-b-2 border-[#0071c2]">
-              Calendrier
-            </button>
-            <button className="px-6 py-2.5 text-sm text-gray-500 hover:text-gray-700">
-              Je suis flexible
-            </button>
-          </div>
+        <div className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4 w-[320px] sm:w-auto sm:min-w-[640px]">
 
           {/* Navigation */}
           <div className="flex items-center justify-between mb-2 px-1">
@@ -259,35 +248,37 @@ export default function DateRangePicker({ checkin, checkout, onCheckin, onChecko
             </button>
           </div>
 
-          {/* Two months */}
-          <div className="grid grid-cols-2 gap-8">
+          {/* One month on mobile, two on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <MonthGrid
               year={viewYear} month={viewMonth}
               checkin={checkin} checkout={checkout} hovered={hovered}
               onSelect={handleSelect} onHover={setHovered}
               days={DAYS} months={MONTHS} disabledDates={disabledDates}
             />
-            <MonthGrid
-              year={year2} month={month2}
-              checkin={checkin} checkout={checkout} hovered={hovered}
-              onSelect={handleSelect} onHover={setHovered}
-              days={DAYS} months={MONTHS} disabledDates={disabledDates}
-            />
+            <div className="hidden sm:block">
+              <MonthGrid
+                year={year2} month={month2}
+                checkin={checkin} checkout={checkout} hovered={hovered}
+                onSelect={handleSelect} onHover={setHovered}
+                days={DAYS} months={MONTHS} disabledDates={disabledDates}
+              />
+            </div>
           </div>
 
           {/* Flex pills */}
-          <div className="flex items-center gap-2 mt-5 pt-4 border-t border-gray-100 flex-wrap">
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
             {([0, 1, 2, 3, 7] as Flex[]).map(d => (
               <button
                 key={d}
                 onClick={() => applyFlex(d)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
                   flex === d
                     ? "border-[#0071c2] text-[#0071c2] bg-blue-50"
                     : "border-gray-300 text-gray-600 hover:border-gray-400"
                 }`}
               >
-                {d === 0 ? "Dates exactes" : `+ ${d} jour${d > 1 ? "s" : ""}`}
+                {d === 0 ? "Dates exactes" : `+${d}j`}
               </button>
             ))}
           </div>
