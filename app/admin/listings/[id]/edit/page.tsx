@@ -43,7 +43,7 @@ export default function EditListingPage() {
           pets: (p?.pets ?? false) as boolean,
           smoking: p?.smoking ?? false,
           [key]: value,
-        },
+        } as import("@/lib/data").ListingPolicies,
       };
     });
   }
