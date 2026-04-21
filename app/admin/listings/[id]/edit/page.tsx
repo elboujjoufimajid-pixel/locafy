@@ -34,17 +34,18 @@ export default function EditListingPage() {
     setListing((prev) => {
       if (!prev) return prev;
       const p = prev.policies;
-      return {
+      const updated: Listing = {
         ...prev,
         policies: {
-          cancellation: (p?.cancellation ?? "Annulation gratuite jusqu'à 24h avant l'arrivée") as string,
-          checkIn: (p?.checkIn ?? "14:00") as string,
-          checkOut: (p?.checkOut ?? "11:00") as string,
-          pets: (p?.pets ?? false) as boolean,
+          cancellation: p?.cancellation ?? "Annulation gratuite jusqu'à 24h avant l'arrivée",
+          checkIn: p?.checkIn ?? "14:00",
+          checkOut: p?.checkOut ?? "11:00",
+          pets: p?.pets ?? false,
           smoking: p?.smoking ?? false,
           [key]: value,
-        } as import("@/lib/data").ListingPolicies,
+        },
       };
+      return updated;
     });
   }
 
