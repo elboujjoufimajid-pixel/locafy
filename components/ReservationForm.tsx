@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Star, Phone, Shield, Zap } from "lucide-react";
+import { Star, Phone, Shield, Zap, CalendarDays } from "lucide-react";
 import type { Listing } from "@/lib/data";
 import { formatPrice, diffDays } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -66,26 +66,32 @@ export default function ReservationForm({ listing }: Props) {
       </div>
 
       {/* Date inputs */}
-      <div className="grid grid-cols-2 border border-gray-200 rounded-xl overflow-hidden mb-3">
-        <div className="p-3 border-r border-gray-200">
-          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Arrivée</label>
-          <input
-            type="date"
-            value={startDate}
-            min={today}
-            onChange={(e) => { setStartDate(e.target.value); if (endDate && e.target.value >= endDate) setEndDate(""); }}
-            className="w-full text-sm text-gray-800 outline-none bg-transparent"
-          />
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center gap-3 border border-gray-200 rounded-xl px-4 py-3 hover:border-blue-400 transition-colors focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200">
+          <CalendarDays className="w-4 h-4 text-blue-500 shrink-0" />
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Arrivée</p>
+            <input
+              type="date"
+              value={startDate}
+              min={today}
+              onChange={(e) => { setStartDate(e.target.value); if (endDate && e.target.value >= endDate) setEndDate(""); }}
+              className="w-full text-sm font-medium text-gray-800 outline-none bg-transparent mt-0.5"
+            />
+          </div>
         </div>
-        <div className="p-3">
-          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Départ</label>
-          <input
-            type="date"
-            value={endDate}
-            min={startDate || today}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="w-full text-sm text-gray-800 outline-none bg-transparent"
-          />
+        <div className="flex items-center gap-3 border border-gray-200 rounded-xl px-4 py-3 hover:border-blue-400 transition-colors focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200">
+          <CalendarDays className="w-4 h-4 text-blue-500 shrink-0" />
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Départ</p>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || today}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full text-sm font-medium text-gray-800 outline-none bg-transparent mt-0.5"
+            />
+          </div>
         </div>
       </div>
       {listing.type !== "car" && (
