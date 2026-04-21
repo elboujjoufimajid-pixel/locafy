@@ -34,7 +34,7 @@ export default function EditListingPage() {
     setListing((prev) => {
       if (!prev) return prev;
       const p = prev.policies;
-      const updated: Listing = {
+      return {
         ...prev,
         policies: {
           cancellation: p?.cancellation ?? "Annulation gratuite jusqu'à 24h avant l'arrivée",
@@ -44,8 +44,7 @@ export default function EditListingPage() {
           smoking: p?.smoking ?? false,
           [key]: value,
         },
-      };
-      return updated;
+      } as unknown as Listing;
     });
   }
 
