@@ -26,10 +26,10 @@ export interface Activity {
 }
 
 export interface ListingPolicies {
-  cancellation: string;
-  checkIn: string;
-  checkOut: string;
-  pets: boolean;
+  cancellation?: string;
+  checkIn?: string;
+  checkOut?: string;
+  pets?: boolean;
   smoking?: boolean;
 }
 
